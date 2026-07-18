@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioCell-AR - Animal Cell Explorer</title>
+    
+    <!-- IMPORT GOOGLE MODEL-VIEWER -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+
+    <style>
+        /* 1. GAYA ASAS & NAVIGASI (Ikut Figma Anda) */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7fafd;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 15px 40px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: #0046ad;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .nav-links a.active {
+            color: #fff;
+            background-color: #0066ff;
+            padding: 6px 15px;
+            border-radius: 20px;
+        }
+
+        .lang-toggle {
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            background: none;
+            border: none;
+        }
+
+        /* 2. STRUKTUR UTAMA (Kiri: 3D, Kanan: Info) */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: #0046ad;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .main-workspace {
+            display: flex;
+            gap: 25px;
+        }
+
+        /* KOTAK KIRI (3D MODEL) */
+        .left-panel {
+            flex: 2;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            height: 500px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+
+        .ar-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #00bfa5;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* HOTSPOTS (Titik atas model) */
+        .hotspot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            background-color: #ff3b30;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* KOTAK KANAN (ORGANELLE INFORMATION) */
+        .right-panel {
+            flex: 1;
+            background-color: #ffffff;
+            border: 2px solid #0066ff;
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .panel-header {
+            color: #0046ad;
+            margin-top: 0;
+            border-bottom: 2px dashed #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .info-box {
+            margin-top: 20px;
+            background-color: #f8fafc;
+            border-left: 4px solid #0066ff;
+            padding: 15px;
+            border-radius: 4px;
+            flex-grow: 1;
+        }
+
+        .organelle-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff3b30;
+            margin-top: 0;
+        }
+
+        .quiz-btn {
+            background-color: #a100ff;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR UTAMA -->
+    <nav class="navbar">
+        <div class="logo">BioCell-AR</div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#" class="active">3D Explorer</a>
+            <a href="#">Quiz Game</a>
+            <a href="#">About</a>
+            <a href="#">Help</a>
+            <button class="lang-toggle" id="lang-btn" onclick="toggleLanguage()">EN | BM</button>
+        </div>
+    </nav>
+
+    <!-- KANDUNGAN UTAMA WORKSPACE -->
+    <div class="container">
+        <a href="#" class="back-btn">← Back to Modules</a>
+        <h2 id="page-title">Animal Cell Explorer</h2>
+
+        <div class="main-workspace">
+            <!-- KIRI: PAPARAN MODEL 3D -->
+            <div class="left-panel">
+                <model-viewer 
+                    id="cell-model"
+                    src="assets/animal_cell.glb" 
+                    ar 
+                    ar-modes="webxr scene-viewer quick-look" 
+                    camera-controls 
+                    touch-action="pan-y"
+                    alt="Animal Cell 3D Model">
+                    
+                    <!-- Titik 1: Nukleus -->
+                    <button class="hotspot" slot="hotspot-1" data-position="0m 0.05m 0m" data-normal="0m 1m 0m" onclick="showInfo('nucleus')">1</button>
+
+                    <!-- Titik 2: Mitokondria -->
+                    <button class="hotspot" slot="hotspot-2" data-position="0.08m -0.02m 0.05m" data-normal="0m 1m 0m" onclick="showInfo('mitochondria')">2</button>
+                    
+                    <!-- Butang View in AR -->
+                    <button slot="ar-button" class="ar-btn">
+                        📷 View in AR
+                    </button>
+                </model-viewer>
+            </div>
+
+            <!-- KANAN: PANEL MAKLUMAT ORGANEL -->
+            <div class="right-panel">
+                <h3 class="panel-header" id="panel-title">Organelle Information</h3>
+                
+                <div class="info-box">
+                    <h4 class="organelle-name" id="org-name">-</h4>
+                    <p id="org-desc">Click on any part of the cell model or numbered dots to learn about its structure and function.</p>
+                </div>
+
+                <a href="#" class="quiz-btn" id="quiz-btn-text">Go to Quiz →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIK DWIBAHASA & KLIK INTERAKTIF -->
+   <script>
+        let currentLang = 'en';
+        let selectedOrganelle = 'default';
+
+        const data = {
+            en: {
+                pageTitle: "Animal Cell Explorer",
+                panelTitle: "Organelle Information",
+                quizBtn: "Go to Quiz →",
+                default: { name: "Instruction", desc: "Click on any part of the cell model or numbered dots to learn about its structure and function." },
+                nucleus: { name: "Nucleus", desc: "Controls all activities in the cell and contains genetic information (DNA)." },
+                mitochondria: { name: "Mitochondria", desc: "The powerhouse of the cell. It produces energy for cellular activities through respiration." }
+            },
+            ms: {
+                pageTitle: "Penjelajah Sel Haiwan",
+                panelTitle: "Maklumat Organel",
+                quizBtn: "Buka Kuiz →",
+                default: { name: "Arahan", desc: "Klik pada mana-mana bahagian model sel atau titik bernombor untuk belajar tentang struktur dan fungsinya." },
+                nucleus: { name: "Nukleus", desc: "Mengawal semua aktiviti di dalam sel dan mengandungi maklumat genetik (DNA)." },
+                mitochondria: { name: "Mitokondria", desc: "Pusat janakuasa sel. Ia menghasilkan tenaga untuk aktiviti sel melalui proses respirasi." }
+            }
+        };
+
+        function showInfo(organelle) {
+            selectedOrganelle = organelle;
+            render();
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ms' : 'en';
+            render();
+        }
+
+        function render() {
+            document.getElementById('page-title').innerText = data[currentLang].pageTitle;
+            document.getElementById('panel-title').innerText = data[currentLang].panelTitle;
+            document.getElementById('quiz-btn-text').innerText = data[currentLang].quizBtn;
+            
+            // Kemaskini teks maklumat organel
+            document.getElementById('org-name').innerText = data[currentLang][selectedOrganelle].name;
+            document.getElementById('org-desc').innerText = data[currentLang][selectedOrganelle].desc;
+        }
+
+        // PANGGIL FUNGSI INI SUPAYA JAVASCRIPT BERJALAN AUTOMATIK BILA WEB DIBUKA
+        render();
+    </script>
+</body>
+</html>
