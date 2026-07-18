@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioCell-AR - Animal Cell Explorer</title>
     
-    <!-- IMPORT GOOGLE MODEL-VIEWER -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+    <!-- IMPORT GOOGLE MODEL-VIEWER (VERSI YANG BETUL & RASMI) -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
     <style>
         /* 1. GAYA ASAS & NAVIGASI (Ikut Figma Anda) */
@@ -200,7 +200,7 @@
             <div class="left-panel">
                 <model-viewer 
                     id="cell-model"
-                   src="https://sitikamarudin04-bot.github.io/biocell-ar/assets/animal_cell.glb"
+                    src="assets/animal_cell.glb"
                     ar 
                     ar-modes="webxr scene-viewer quick-look" 
                     camera-controls 
