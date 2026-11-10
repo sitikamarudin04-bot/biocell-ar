@@ -428,9 +428,6 @@
     </style> <!-- <-- Letak tepat SEBELUM penutup tag style ni -->
 </head>
 <body>
-    </style>
-</head>
-<body>
 
     <!-- NAVBAR UTAMA -->
     <div class="header-container">
@@ -566,12 +563,13 @@
 
         function zoomIn() {
             const orbit = modelViewerElement.getCameraOrbit();
-            modelViewerElement.cameraOrbit = `${orbit.theta}rad ${orbit.phi}rad ${orbit.radius * 0.8}m`;
+            modelViewerElement.cameraOrbit = `${orbit.theta}rad ${orbit.phi}rad ${Math.max(0.5, orbit.radius - 0.5)}m`;
         }
+        
 
         function zoomOut() {
             const orbit = modelViewerElement.getCameraOrbit();
-            modelViewerElement.cameraOrbit = `${orbit.theta}rad ${orbit.phi}rad ${orbit.radius * 1.2}m`;
+            modelViewerElement.cameraOrbit = `${orbit.theta}rad ${orbit.phi}rad ${orbit.radius + 0.5}m`;
         }
 
         function rotateLeft() {
