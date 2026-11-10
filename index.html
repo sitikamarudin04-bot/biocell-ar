@@ -1,285 +1,347 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ms">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BioCell-AR - Animal Cell Explorer</title>
-    
-    <!-- IMPORT GOOGLE MODEL-VIEWER (VERSI YANG BETUL & RASMI) -->
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-
+    <title>BioCell-AR - Main Dashboard</title>
     <style>
-        /* 1. GAYA ASAS & NAVIGASI (Ikut Figma Anda) */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f7fafd;
-            margin: 0;
-            padding: 0;
-            color: #333;
+        :root {
+            --neon-blue: #00f2fe;
+            --neon-purple: #bc13fe;
+            --card-bg: #F1F7FF;
+            --card-border: rgba(255, 255, 255, 0.8);
+            --text-dark: #26354D;
+            --title-animal: #087DE0;
+            --title-plant: #16A34A;
+            --text-light: #f1f5f9;
         }
 
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #ffffff;
-            padding: 15px 40px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .logo {
-            font-size: 22px;
-            font-weight: bold;
-            color: #0046ad;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #666;
-            font-weight: 500;
-        }
-
-        .nav-links a.active {
-            color: #fff;
-            background-color: #0066ff;
-            padding: 6px 15px;
-            border-radius: 20px;
-        }
-
-        .lang-toggle {
-            cursor: pointer;
-            font-weight: bold;
-            color: #666;
-            background: none;
-            border: none;
-        }
-
-        /* 2. STRUKTUR UTAMA (Kiri: 3D, Kanan: Info) */
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        .back-btn {
-            text-decoration: none;
-            color: #0046ad;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 15px;
-        }
-
-        .main-workspace {
-            display: flex;
-            gap: 25px;
-        }
-
-        /* KOTAK KIRI (3D MODEL) */
-        .left-panel {
-            flex: 2;
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            height: 500px;
-            position: relative;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-        }
-
-        model-viewer {
-            width: 100%;
-            height: 100%;
-            border-radius: 12px;
-        }
-
-        .ar-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background-color: #00bfa5;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* HOTSPOTS (Titik atas model) */
-        .hotspot {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            background-color: #ff3b30;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        /* KOTAK KANAN (ORGANELLE INFORMATION) */
-        .right-panel {
-            flex: 1;
-            background-color: #ffffff;
-            border: 2px solid #0066ff;
-            border-radius: 12px;
-            padding: 25px;
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; padding: 0; 
+            background-color: #02040a;
+            background-image: url('assets/biocellar-background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: var(--text-light);
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            min-height: 100vh;
         }
 
-        .panel-header {
-            color: #0046ad;
-            margin-top: 0;
-            border-bottom: 2px dashed #e2e8f0;
-            padding-bottom: 10px;
+        /* Latar belakang luar biru-ungu futuristik dengan overlay lembut */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.4); 
+            backdrop-filter: blur(1.5px); 
+            z-index: -1;
+        }
+        
+        /* Navbar Asal Dark Navy */
+        .header-container {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(6, 10, 20, 0.9);
+            backdrop-filter: blur(10px); 
+            padding: 15px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7); 
+            border-bottom: 1px solid rgba(0, 242, 254, 0.3);
+            border-top: 4px solid var(--neon-purple);
+            position: sticky; top: 0; z-index: 1000;
         }
 
-        .info-box {
-            margin-top: 20px;
-            background-color: #f8fafc;
-            border-left: 4px solid #0066ff;
-            padding: 15px;
-            border-radius: 4px;
-            flex-grow: 1;
+        .logo-title { 
+            color: var(--neon-blue); font-size: 26px; font-weight: 800; 
+            text-decoration: none; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); 
         }
 
-        .organelle-name {
-            font-size: 20px;
-            font-weight: bold;
-            color: #ff3b30;
-            margin-top: 0;
+        .nav-links { display: flex; align-items: center; gap: 25px; }
+
+        .nav-item { 
+            text-decoration: none; color: #94a3b8; font-size: 16px; font-weight: 600; 
+            padding: 8px 20px; border-radius: 20px; transition: all 0.3s; 
+        }
+        .nav-item.active { 
+            background: linear-gradient(135deg, var(--neon-blue), #0066ff); 
+            color: white; box-shadow: 0 0 15px rgba(0, 242, 254, 0.5); font-weight: bold; 
+        }
+        .nav-item:hover:not(.active) { color: var(--neon-blue); background: rgba(255, 255, 255, 0.05); }
+
+        /* Pill Toggle Bahasa Asal */
+        .lang-switcher { 
+            display: flex; background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(0, 242, 254, 0.3); padding: 3px; border-radius: 20px; 
+        }
+        .lang-btn { 
+            background: none; border: none; padding: 6px 16px; font-weight: bold; 
+            font-size: 14px; border-radius: 16px; cursor: pointer; color: #64748b; transition: all 0.3s; 
+        }
+        .lang-btn.active { 
+            background-color: var(--neon-blue); color: #040914; 
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.7); 
         }
 
-        .quiz-btn {
-            background-color: #a100ff;
-            color: white;
+        /* Hero Section (Bingkai Sci-Fi) */
+        .hero { 
+            text-align: center; 
+            padding: 28px 30px; 
+            width: 90%; 
+            max-width: 1300px;
+            margin: 25px auto 20px auto; 
+            background: rgba(6, 14, 30, 0.82); 
+            backdrop-filter: blur(14px); 
+            border: 2px solid rgba(0, 242, 254, 0.45); 
+            border-radius: 20px; 
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 242, 254, 0.15); 
+            box-sizing: border-box;
+        }
+        .hero h1 { 
+            color: #ffffff; font-size: 34px; font-weight: 800; 
+            margin: 0 0 8px 0; text-shadow: 0 0 15px rgba(255, 255, 255, 0.5); 
+        }
+        .hero h1 span { color: #22c55e; text-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
+        .hero p { color: #cbd5e1; font-size: 15px; margin: 0; font-style: italic; letter-spacing: 0.3px; }
+
+        /* KAD MODUL SEL - Panel Putih Lembut (#F1F7FF) */
+        .card-container { 
+            display: flex; 
+            justify-content: center; 
+            gap: 40px; 
+            padding: 10px 3% 40px 3%; 
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex: 1; 
+            box-sizing: border-box;
+        }
+    
+        .card { 
+            flex: 1; 
+            max-width: 580px;
+            min-height: 480px; 
+            padding: 45px 35px; 
+            border-radius: 30px; 
+            color: var(--text-dark); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
             text-align: center;
-            padding: 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-top: 20px;
-            display: block;
+            justify-content: center; 
+            gap: 20px; 
+            transition: all 0.4s ease; 
+            background: var(--card-bg); 
+            border: 2px solid var(--card-border); 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45); 
+            box-sizing: border-box;
+        }
+    
+        .card:hover { 
+            transform: translateY(-8px); 
+            border-color: #00f2fe;
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.35); 
+        }
+    
+        .card img { 
+            width: 490px; height: 490px; object-fit: contain; 
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.12));
+            animation: floatImage 4s ease-in-out infinite;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover img {
+            transform: scale(1.06) translateY(-4px);
+        }
+
+        @keyframes floatImage {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* TAJUK SPESIFIK KAD */
+        .animal-card h3 { 
+            font-size: 34px; margin: 0; color: var(--title-animal); 
+            font-weight: 800;
+        }
+        
+        .plant-card h3 { 
+            font-size: 34px; margin: 0; color: var(--title-plant); 
+            font-weight: 800;
+        }
+
+        .card p { 
+            font-size: 17px; line-height: 1.5; color: var(--text-dark); 
+            margin: 0; max-width: 85%; 
+            font-weight: 500;
+        }
+    
+        /* GAYA BUTANG UTAMA DENGAN IKON MIKROSKOP & DAUN YANG BETUL */
+        .btn { 
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px; 
+            padding: 15px 42px; 
+            border-radius: 30px; 
+            text-decoration: none; 
+            font-weight: 700; 
+            font-size: 17px; 
+            transition: all 0.3s ease; 
+        }
+
+        .animal-card .btn { 
+            background: linear-gradient(135deg, #00c6ff, #0072ff); 
+            color: white; 
+            box-shadow: 0 6px 20px rgba(0, 114, 255, 0.4); 
+        }
+
+        .plant-card .btn { 
+            background: linear-gradient(135deg, #22c55e, #15803d); 
+            color: white; 
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4); 
+        }
+
+        .btn:hover { 
+            transform: scale(1.06); 
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.6); 
+        }
+
+        /* FOOTER KACA MODEN (Kekal Asal) */
+        .footer-container {
+            text-align: center;
+            padding: 15px;
+            background: rgba(6, 10, 20, 0.85);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 242, 254, 0.3);
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: auto;
+        }
+        .footer-container span { color: var(--neon-blue); font-weight: bold; }
+
+        @media (max-width: 950px) {
+            .card-container { flex-direction: column; align-items: center; }
+            .header-container { padding: 15px 20px; flex-direction: column; gap: 15px; }
+            .nav-links { flex-wrap: wrap; justify-content: center; }
         }
     </style>
 </head>
 <body>
 
-    <!-- NAVBAR UTAMA -->
-    <nav class="navbar">
-        <div class="logo">BioCell-AR</div>
+    <!-- NAVBAR ASAL -->
+    <div class="header-container">
+        <a href="index.html" class="logo-title">BioCell-AR</a>
         <div class="nav-links">
-            <a href="#">Home</a>
-            <a href="#" class="active">3D Explorer</a>
-            <a href="#">Quiz Game</a>
-            <a href="#">About</a>
-            <a href="#">Help</a>
-            <button class="lang-toggle" id="lang-btn" onclick="toggleLanguage()">EN | BM</button>
-        </div>
-    </nav>
-
-    <!-- KANDUNGAN UTAMA WORKSPACE -->
-    <div class="container">
-        <a href="#" class="back-btn">← Back to Modules</a>
-        <h2 id="page-title">Animal Cell Explorer</h2>
-
-        <div class="main-workspace">
-            <!-- KIRI: PAPARAN MODEL 3D -->
-            <div class="left-panel">
-                <model-viewer 
-                    id="cell-model"
-                    src="assets/animal_cell.glb"
-                    ar 
-                    ar-modes="webxr scene-viewer quick-look" 
-                    camera-controls 
-                    touch-action="pan-y"
-                    alt="Animal Cell 3D Model">
-                    
-                    <!-- Titik 1: Nukleus -->
-                    <button class="hotspot" slot="hotspot-1" data-position="0m 0.05m 0m" data-normal="0m 1m 0m" onclick="showInfo('nucleus')">1</button>
-
-                    <!-- Titik 2: Mitokondria -->
-                    <button class="hotspot" slot="hotspot-2" data-position="0.08m -0.02m 0.05m" data-normal="0m 1m 0m" onclick="showInfo('mitochondria')">2</button>
-                    
-                    <!-- Butang View in AR -->
-                    <button slot="ar-button" class="ar-btn">
-                        📷 View in AR
-                    </button>
-                </model-viewer>
-            </div>
-
-            <!-- KANAN: PANEL MAKLUMAT ORGANEL -->
-            <div class="right-panel">
-                <h3 class="panel-header" id="panel-title">Organelle Information</h3>
-                
-                <div class="info-box">
-                    <h4 class="organelle-name" id="org-name">-</h4>
-                    <p id="org-desc">Click on any part of the cell model or numbered dots to learn about its structure and function.</p>
-                </div>
-
-                <a href="#" class="quiz-btn" id="quiz-btn-text">Go to Quiz →</a>
+            <a href="index.html" class="nav-item active" id="nav-home">Home</a>
+            <a href="explorer.html" class="nav-item" id="nav-explorer">3D Explorer</a>
+            <a href="quiz.html" class="nav-item" id="nav-quiz">Quiz Game</a>
+            <a href="about.html" class="nav-item" id="nav-about">About</a>
+            <a href="help.html" class="nav-item" id="nav-help">Help</a>
+            
+            <div class="lang-switcher">
+                <button class="lang-btn active" onclick="setLanguage('ms')" id="btn-ms">BM</button>
+                <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPT LOGIK DWIBAHASA & KLIK INTERAKTIF -->
-   <script>
-        let currentLang = 'en';
-        let selectedOrganelle = 'default';
+    <!-- KOTAK TAJUK UTAMA (HERO BINGKAI SCI-FI) -->
+    <section class="hero">
+        <h1 id="hero-title">Welcome to BioCell-<span>AR</span> Platform</h1>
+        <p id="hero-desc">Form 1 Science Learning | Explore, learn and understand the amazing world of cells</p>
+    </section>
 
-        const data = {
+    <!-- KAD MODUL SEL (PUTIH LEMBUT) -->
+    <div class="card-container">
+        <!-- Kad Haiwan (Ikon Mikroskop Betul) -->
+        <div class="card animal-card">
+            <img src="assets/sel-haiwan.png" alt="Animal Cell" onerror="this.src='https://modelviewer.dev/shared-assets/models/Astronaut.glb' style='display:none'">
+            <h3 id="card1-title">Animal Cell Module</h3>
+            <p id="card1-desc">Explore the structure and functions of animal cell.</p>
+            <a href="explorer.html" class="btn" id="btn1">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V2"/></svg>
+                Explore Now 
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+        </div>
+
+        <!-- Kad Tumbuhan (Ikon Daun Betul) -->
+        <div class="card plant-card">
+            <img src="assets/sel-tumbuhan.png" alt="Plant Cell" onerror="this.src='https://modelviewer.dev/shared-assets/models/Astronaut.glb' style='display:none'">
+            <h3 id="card2-title">Plant Cell Module</h3>
+            <p id="card2-desc">Explore the structure and functions of plant cell.</p>
+            <a href="explorer.html?mode=plant" class="btn" id="btn2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.4 19 2c2.4 2 3 3.5 1.9 9.2a7 7 0 0 1-13.9 3.8z"/><path d="M2 21c0-3 1.8-5.2 5-6"/></svg>
+                Explore Now 
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- FOOTER BAHAGIAN BAWAH (Kekal Asal) -->
+    <footer class="footer-container">
+        <p id="footer-text">© 2026 <span>BioCell-AR</span> | Interactive Web-Based Augmented Reality for Form 1 Science KSSM</p>
+    </footer>
+
+    <script>
+        const translations = {
             en: {
-                pageTitle: "Animal Cell Explorer",
-                panelTitle: "Organelle Information",
-                quizBtn: "Go to Quiz →",
-                default: { name: "Instruction", desc: "Click on any part of the cell model or numbered dots to learn about its structure and function." },
-                nucleus: { name: "Nucleus", desc: "Controls all activities in the cell and contains genetic information (DNA)." },
-                mitochondria: { name: "Mitochondria", desc: "The powerhouse of the cell. It produces energy for cellular activities through respiration." }
+                navHome: "Home", navExplorer: "3D Explorer", navQuiz: "Quiz Game", navAbout: "About", navHelp: "Help",
+                heroTitle: "Welcome to BioCell-<span>AR</span> Platform",
+                heroDesc: "Form 1 Science Learning | Explore, learn and understand the amazing world of cells",
+                card1Title: "Animal Cell Module",
+                card1Desc: "Explore the structure and functions of animal cell.",
+                btn1Text: 'Explore Now',
+                card2Title: "Plant Cell Module",
+                card2Desc: "Explore the structure and functions of plant cell.",
+                btn2Text: 'Explore Now',
+                footerText: "© 2026 BioCell-AR | Interactive Web-Based Augmented Reality for Form 1 Science KSSM"
             },
             ms: {
-                pageTitle: "Penjelajah Sel Haiwan",
-                panelTitle: "Maklumat Organel",
-                quizBtn: "Buka Kuiz →",
-                default: { name: "Arahan", desc: "Klik pada mana-mana bahagian model sel atau titik bernombor untuk belajar tentang struktur dan fungsinya." },
-                nucleus: { name: "Nukleus", desc: "Mengawal semua aktiviti di dalam sel dan mengandungi maklumat genetik (DNA)." },
-                mitochondria: { name: "Mitokondria", desc: "Pusat janakuasa sel. Ia menghasilkan tenaga untuk aktiviti sel melalui proses respirasi." }
+                navHome: "Utama", navExplorer: "Penjelajah 3D", navQuiz: "Permainan Kuiz", navAbout: "Tentang Kami", navHelp: "Bantuan",
+                heroTitle: "Selamat Datang ke Platform BioCell-<span>AR</span>",
+                heroDesc: "Pembelajaran Sains Tingkatan 1 | Teroka, belajar dan fahami dunia sel yang menakjubkan",
+                card1Title: "Modul Sel Haiwan",
+                card1Desc: "Teroka struktur dan fungsi organel sel haiwan.",
+                btn1Text: 'Mula Teroka',
+                card2Title: "Modul Sel Tumbuhan",
+                card2Desc: "Teroka struktur dan fungsi organel sel tumbuhan.",
+                btn2Text: 'Mula Teroka',
+                footerText: "© 2026 BioCell-AR | Pembelajaran Interaktif Realiti Terimbuh (AR) Sains Tingkatan 1 KSSM"
             }
         };
 
-        function showInfo(organelle) {
-            selectedOrganelle = organelle;
-            render();
-        }
+        function setLanguage(lang) {
+            document.getElementById('btn-ms').classList.toggle('active', lang === 'ms');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
 
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ms' : 'en';
-            render();
-        }
+            document.getElementById('nav-home').innerText = translations[lang].navHome;
+            document.getElementById('nav-explorer').innerText = translations[lang].navExplorer;
+            document.getElementById('nav-quiz').innerText = translations[lang].navQuiz;
+            document.getElementById('nav-about').innerText = translations[lang].navAbout;
+            document.getElementById('nav-help').innerText = translations[lang].navHelp;
 
-        function render() {
-            document.getElementById('page-title').innerText = data[currentLang].pageTitle;
-            document.getElementById('panel-title').innerText = data[currentLang].panelTitle;
-            document.getElementById('quiz-btn-text').innerText = data[currentLang].quizBtn;
+            document.getElementById('hero-title').innerHTML = translations[lang].heroTitle;
+            document.getElementById('hero-desc').innerText = translations[lang].heroDesc;
+            document.getElementById('card1-title').innerText = translations[lang].card1Title;
+            document.getElementById('card1-desc').innerText = translations[lang].card1Desc;
             
-            // Kemaskini teks maklumat organel
-            document.getElementById('org-name').innerText = data[currentLang][selectedOrganelle].name;
-            document.getElementById('org-desc').innerText = data[currentLang][selectedOrganelle].desc;
-        }
+            // Butang Sel Haiwan dengan Ikon Mikroskop
+            document.getElementById('btn1').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V2"/></svg> ${translations[lang].btn1Text} <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"/></svg>`;
 
-        // PANGGIL FUNGSI INI SUPAYA JAVASCRIPT BERJALAN AUTOMATIK BILA WEB DIBUKA
-        render();
+            document.getElementById('card2-title').innerText = translations[lang].card2Title;
+            document.getElementById('card2-desc').innerText = translations[lang].card2Desc;
+            
+            // Butang Sel Tumbuhan dengan Ikon Daun
+            document.getElementById('btn2').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.4 19 2c2.4 2 3 3.5 1.9 9.2a7 7 0 0 1-13.9 3.8z"/><path d="M2 21c0-3 1.8-5.2 5-6"/></svg> ${translations[lang].btn2Text} <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"/></svg>`;
+
+            document.getElementById('footer-text').innerHTML = translations[lang].footerText;
+        }
     </script>
 </body>
 </html>
