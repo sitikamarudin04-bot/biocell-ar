@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioCell-AR - 3D Cell Explorer</title>
+    
+    <!-- IMPORT GOOGLE MODEL-VIEWER -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+    <style>
+        :root {
+            --neon-blue: #00f2fe;
+            --neon-green: #16a34a;
+            --neon-purple: #9333ea;
+            --glass-bg: rgba(255, 255, 255, 0.12); 
+            --glass-border: rgba(255, 255, 255, 0.35);
+            --text-light: #ffffff;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; padding: 0; 
+            background-color: #02040a;
+            background-image: url('assets/biocellar-background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: var(--text-light);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 4, 10, 0.35); 
+            backdrop-filter: blur(1.5px); 
+            z-index: -1;
+        }
+        
+        /* NAVBAR UTAMA */
+        .header-container {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(6, 10, 20, 0.9);
+            backdrop-filter: blur(10px); 
+            padding: 15px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7); 
+            border-bottom: 1px solid rgba(0, 242, 254, 0.3);
+            border-top: 4px solid var(--neon-purple);
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        .logo-title { 
+            color: var(--neon-blue); font-size: 26px; font-weight: 800; 
+            text-decoration: none; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); 
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 25px; }
+
+        .nav-item { 
+            text-decoration: none; color: #94a3b8; font-size: 16px; font-weight: 600; 
+            padding: 8px 20px; border-radius: 20px; transition: all 0.3s; 
+        }
+        .nav-item.active { 
+            background: linear-gradient(135deg, var(--neon-blue), #0066ff); 
+            color: white; box-shadow: 0 0 15px rgba(0, 242, 254, 0.5); font-weight: bold; 
+        }
+        .nav-item:hover:not(.active) { color: var(--neon-blue); background: rgba(255, 255, 255, 0.05); }
+
+        /* PILL TOGGLE BAHASA */
+        .lang-switcher { 
+            display: flex; background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.2); padding: 3px; border-radius: 20px; 
+        }
+        .lang-btn { 
+            background: none; border: none; padding: 6px 16px; font-weight: bold; 
+            font-size: 14px; border-radius: 16px; cursor: pointer; color: #94a3b8; transition: all 0.3s; 
+        }
+        .lang-btn.active { 
+            background-color: var(--neon-blue); color: #040914; 
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.7); 
+        }
+
+        /* BAR ATAS */
+        .page-top-bar {
+            max-width: 1400px;
+            width: 94%;
+            margin: 25px auto 15px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: #cbd5e1;
+            font-weight: 700;
+            font-size: 14px;
+            transition: 0.3s;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 10px 22px;
+            border-radius: 25px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            display: inline-flex;
+            align-items: center;
+        }
+        .back-btn:hover { color: var(--neon-blue); border-color: var(--neon-blue); background: rgba(255, 255, 255, 0.18); }
+
+        .mode-tabs-container {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .mode-tabs {
+            display: flex;
+            gap: 10px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            padding: 6px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #e2e8f0;
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--neon-blue), #0066ff);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+        }
+        .tab-btn:hover:not(.active) {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* MAIN WORKSPACE */
+        .container {
+            max-width: 1400px;
+            width: 94%;
+            margin: 0 auto 40px auto;
+            flex: 1;
+            box-sizing: border-box;
+        }
+
+        .main-workspace {
+            display: flex;
+            gap: 30px;
+        }
+
+        .left-panel {
+            flex: 1.4;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 24px;
+            height: 560px;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .left-panel:fullscreen {
+            border-radius: 0;
+            background: #02040a;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+        }
+
+        .top-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .control-btn {
+            background: rgba(8, 12, 24, 0.85);
+            border: 1.5px solid var(--glass-border);
+            color: #ffffff;
+            padding: 12px 18px; /* Ditingkatkan saiz supaya lebih besar dan jelas */
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 16px; /* Saiz ikon/teks dibesarkan */
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .control-btn:hover {
+            background: var(--neon-blue);
+            color: #040914;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.8);
+            transform: scale(1.05);
+        }
+
+        .ar-btn {
+            background: linear-gradient(135deg, #00bfa5, #00e676);
+            color: #040914;
+            border: none;
+            box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
+        }
+        .ar-btn:hover { transform: scale(1.08); }
+
+        /* HOTSPOTS STYLING */
+        button.hotspot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            background: var(--neon-purple);
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 0 12px var(--neon-purple);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button.hotspot:hover {
+            transform: scale(1.25);
+            background: var(--neon-blue);
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        .right-panel {
+            flex: 1;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+        }
+
+        .panel-header {
+            color: #ffffff;
+            margin: 0 0 20px 0;
+            font-size: 22px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 12px;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.06);
+            border-left: 5px solid var(--neon-blue);
+            padding: 25px;
+            border-radius: 14px;
+            flex-grow: 1;
+            margin-bottom: 25px;
+        }
+
+        .organelle-name {
+            font-size: 26px;
+            font-weight: 800;
+            color: #4ade80;
+            margin: 0 0 12px 0;
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+        }
+
+        .organelle-desc {
+            line-height: 1.6;
+            color: #f1f5f9;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .quiz-btn {
+            background: linear-gradient(135deg, var(--neon-purple), #7c3aed);
+            color: white;
+            text-align: center;
+            padding: 16px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 16px;
+            box-shadow: 0 0 20px rgba(147, 51, 234, 0.6);
+            transition: all 0.3s;
+        }
+        .quiz-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(147, 51, 234, 0.9);
+        }
+
+        .comparison-table-container {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+
+        .comp-table th, .comp-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 15px;
+            color: #ffffff;
+        }
+
+        .comp-table th {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--neon-blue);
+            font-size: 16px;
+        }
+
+        .comp-table tr:hover { background: rgba(255, 255, 255, 0.08); }
+
+        .badge-present { color: #4ade80; font-weight: bold; text-shadow: 0 0 8px rgba(74, 222, 128, 0.5); }
+        .badge-absent { color: #f87171; font-weight: bold; }
+
+        .footer-container {
+            text-align: center;
+            padding: 15px;
+            background: rgba(6, 10, 20, 0.85);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 242, 254, 0.3);
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: auto;
+        }
+        .footer-container span { color: var(--neon-blue); font-weight: bold; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR UTAMA -->
+    <div class="header-container">
+        <a href="index.html" class="logo-title">BioCell-AR</a>
+        
+        <div class="nav-links">
+            <a href="index.html" class="nav-item" id="nav-home">Home</a>
+            <a href="explorer.html" class="nav-item active" id="nav-explorer">3D Explorer</a>
+            <a href="quiz.html" class="nav-item" id="nav-quiz">Quiz Game</a>
+            <a href="about.html" class="nav-item" id="nav-about">About</a>
+            <a href="help.html" class="nav-item" id="nav-help">Help</a>
+            
+            <div class="lang-switcher">
+                <button class="lang-btn active" onclick="setLanguage('ms')" id="btn-ms">BM</button>
+                <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BAR ATAS -->
+    <div class="page-top-bar">
+        <a href="index.html" class="back-btn" id="btn-back">← Kembali ke Utama</a>
+
+        <div class="mode-tabs-container">
+            <div class="mode-tabs">
+                <button class="tab-btn active" id="tab-animal" onclick="changeCellMode('animal')">Sel Haiwan</button>
+                <button class="tab-btn" id="tab-plant" onclick="changeCellMode('plant')">Sel Tumbuhan</button>
+                <button class="tab-btn" id="tab-comparison" onclick="changeCellMode('comparison')">Perbezaan Organel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN WORKSPACE -->
+    <div class="container">
+        <div class="main-workspace" id="workspace-3d">
+            <div class="left-panel" id="panel-3d">
+                <!-- KAWALAN KAMERA LENGKAP (BESAR & ADA ATAS/BAWAH) -->
+                <div class="top-controls">
+                    <button class="control-btn" onclick="zoomIn()" id="btn-zoomin" title="Zum Masuk">🔍+</button>
+                    <button class="control-btn" onclick="zoomOut()" id="btn-zoomout" title="Zum Keluar">🔎-</button>
+                    <button class="control-btn" onclick="rotateLeft()" id="btn-left" title="Pusing Kiri">◀</button>
+                    <button class="control-btn" onclick="rotateRight()" id="btn-right" title="Pusing Kanan">▶</button>
+                    <button class="control-btn" onclick="tiltUp()" id="btn-up" title="Dongak Atas">▲</button>
+                    <button class="control-btn" onclick="tiltDown()" id="btn-down" title="Tunduk Bawah">▼</button>
+                    <button class="control-btn" onclick="resetView()" id="btn-reset" title="Reset Semula">🔄</button>
+                    <button class="control-btn" onclick="toggleFullScreen()" id="btn-fullscreen">⛶ Skrin Penuh</button>
+                </div>
+
+                <model-viewer 
+                    id="cell-model"
+                    src="assets/animal_cell.glb"
+                    ar 
+                    ar-modes="webxr scene-viewer quick-look" 
+                    camera-controls 
+                    touch-action="pan-y"
+                    tone-mapping="neutral"
+                    shadow-intensity="1"
+                    alt="BioCell-AR 3D Model">
+                    
+                    <!-- Hotspots Asal Sel Haiwan -->
+                    <button class="hotspot" slot="hotspot-1" data-position="-0.33488400658741735m 0.4365954777638752m -0.3188154620279864m" data-normal="0.3722882212729404m 0.0810115865333608m 0.9245748229044407m" onclick="showInfo('nucleus')">1</button>
+                    <button class="hotspot" slot="hotspot-2" data-position="-0.3544448958788808m 0.10079463408202072m 3.326898045020408m" data-normal="0.9540340413393247m 0.2813153820607738m 0.10334749044730926m" onclick="showInfo('mitochondria')">2</button>
+                    <button class="hotspot" slot="hotspot-3" data-position="-2.987499472820628m -0.028234045746415345m -0.9420083542499613m" data-normal="0.8761916628678218m 0.36395660967772936m 0.31594897719855686m" onclick="showInfo('membrane')">3</button>
+                    <button class="hotspot" slot="hotspot-4" data-position="-1.868942774705007m -0.11139942592987305m 2.40046167109236m" data-normal="-0.013833720776465682m 0.9945705345307302m -0.10314106850686028m" onclick="showInfo('cytoplasm')">4</button>
+                    
+                    <button slot="ar-button" class="control-btn ar-btn">📷 View in AR</button>
+                </model-viewer>
+            </div>
+
+            <div class="right-panel">
+                <h3 class="panel-header" id="panel-title">Maklumat Organel</h3>
+                
+                <div class="info-box">
+                    <h4 class="organelle-name" id="org-name">-</h4>
+                    <p class="organelle-desc" id="org-desc">Klik pada mana-mana titik bernombor pada model 3D untuk melihat fungsi struktur organel.</p>
+                </div>
+
+                <a href="quiz.html" class="quiz-btn" id="quiz-btn-text">Uji Minda Dalam Kuiz →</a>
+            </div>
+        </div>
+
+        <!-- MODE 3: JADUAL PERBEZAAN ORGANEL -->
+        <div class="comparison-table-container" id="workspace-comparison">
+            <div class="right-panel" style="width: 100%; box-sizing: border-box;">
+                <h3 class="panel-header" id="comp-title">Jadual Perbandingan Sel Haiwan & Sel Tumbuhan (M/S 50-51)</h3>
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th id="th-org">Struktur / Organel</th>
+                            <th id="th-animal">Sel Haiwan</th>
+                            <th id="th-plant">Sel Tumbuhan</th>
+                            <th id="th-func">Fungsi Utama</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer-container">
+        <p id="footer-text">© 2026 <span>BioCell-AR</span> | Interactive Web-Based Augmented Reality for Form 1 Science KSSM</p>
+    </footer>
+
+    <script>
+        let currentLang = 'ms'; 
+        let selectedOrganelle = 'default';
+        let currentCellMode = 'animal';
+
+        // PENGESAN URL PARAMETER
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const modeParam = urlParams.get('mode');
+            
+            if (modeParam === 'plant') {
+                changeCellMode('plant');
+            } else {
+                changeCellMode('animal');
+            }
+        });
+
+        function toggleFullScreen() {
+            const panel = document.getElementById('panel-3d');
+            if (!document.fullscreenElement) {
+                if (panel.requestFullscreen) panel.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        // --- FUNGSI KAWALAN KAMERA 3D (LENGKAP KIRI, KANAN, ATAS, BAWAH, ZUM) ---
+        const modelViewerElement = document.getElementById('cell-model');
+
+        function zoomIn() {
+            const orbit = modelViewerElement.getCameraOrbit();
+            modelViewerElement.cameraOrbit = `${orbit.theta}rad ${orbit.phi}rad ${orbit.radius * 0.8}m`;
+        }
+
+        function zoomOut() {
+            const orbit = modelViewerElement.getCameraOrbit();
+            modelViewerElement.cameraOrbit = `${orbit.theta}rad ${orbit.phi}rad ${orbit.radius * 1.2}m`;
+        }
+
+        function rotateLeft() {
+            const orbit = modelViewerElement.getCameraOrbit();
+            modelViewerElement.cameraOrbit = `${orbit.theta - 0.5}rad ${orbit.phi}rad ${orbit.radius}m`;
+        }
+
+        function rotateRight() {
+            const orbit = modelViewerElement.getCameraOrbit();
+            modelViewerElement.cameraOrbit = `${orbit.theta + 0.5}rad ${orbit.phi}rad ${orbit.radius}m`;
+        }
+
+        function tiltUp() {
+            const orbit = modelViewerElement.getCameraOrbit();
+            // Hadkan sudut phi supaya tidak terbalik (antara 0.1 hingga pi - 0.1)
+            let newPhi = Math.max(0.1, orbit.phi - 0.3);
+            modelViewerElement.cameraOrbit = `${orbit.theta}rad ${newPhi}rad ${orbit.radius}m`;
+        }
+
+        function tiltDown() {
+            const orbit = modelViewerElement.getCameraOrbit();
+            let newPhi = Math.min(Math.PI - 0.1, orbit.phi + 0.3);
+            modelViewerElement.cameraOrbit = `${orbit.theta}rad ${newPhi}rad ${orbit.radius}m`;
+        }
+
+        function resetView() {
+            modelViewerElement.cameraOrbit = 'auto auto auto';
+            modelViewerElement.jumpCameraToGoal();
+        }
+
+        const data = {
+            en: {
+                navHome: "Home", navExplorer: "3D Explorer", navQuiz: "Quiz Game", navAbout: "About", navHelp: "Help",
+                backBtn: "← Back to Home", fullscreenBtn: "Fullscreen", panelTitle: "Organelle Information",
+                quizBtn: "Go to Quiz →", tabAnimal: "Animal Cell", tabPlant: "Plant Cell", tabComp: "Organelle Comparison",
+                compTitle: "Animal & Plant Cell Comparison Table (P. 50-51)",
+                thOrg: "Structure / Organelle", thAnimal: "Animal Cell", thPlant: "Plant Cell", thFunc: "Main Function",
+                // Tooltips Butang Kawalan Bahasa Inggeris
+                tipZoomIn: "Zoom In", tipZoomOut: "Zoom Out", tipLeft: "Rotate Left", tipRight: "Rotate Right",
+                tipUp: "Tilt Up", tipDown: "Tilt Down", tipReset: "Reset View", tipFull: "Fullscreen",
+                default: { name: "Instruction", desc: "Click on any numbered dots on the 3D model to study its cellular function." },
+                nucleus: { name: "Nucleus", desc: "Controls all activities in the cell and contains genetic material (DNA)." },
+                mitochondria: { name: "Mitochondria", desc: "Produces energy for cellular processes through respiration." },
+                membrane: { name: "Cell Membrane", desc: "Controls the movement of substances into and out of the cell." },
+                cytoplasm: { name: "Cytoplasm", desc: "A jelly-like medium where most cellular chemical reactions occur." },
+                cellWall: { name: "Cell Wall", desc: "Provides rigid support, protection, and fixed shape to plant cells." },
+                chloroplast: { name: "Chloroplast", desc: "Contains chlorophyll to absorb sunlight for photosynthesis." },
+                vacuole: { name: "Vacuole", desc: "Provides turgidity and support to plant cells when filled with cell sap." },
+                footerText: "© 2026 BioCell-AR | Interactive Web-Based Augmented Reality for Form 1 Science KSSM"
+            },
+            ms: {
+                navHome: "Utama", navExplorer: "Penjelajah 3D", navQuiz: "Permainan Kuiz", navAbout: "Tentang Kami", navHelp: "Bantuan",
+                backBtn: "← Kembali ke Utama", fullscreenBtn: "Skrin Penuh", panelTitle: "Maklumat Organel",
+                quizBtn: "Uji Minda Dalam Kuiz →", tabAnimal: "Sel Haiwan", tabPlant: "Sel Tumbuhan", tabComp: "Perbezaan Organel",
+                compTitle: "Jadual Perbandingan Sel Haiwan & Sel Tumbuhan (M/S 50-51)",
+                thOrg: "Struktur / Organel", thAnimal: "Sel Haiwan", thPlant: "Sel Tumbuhan", thFunc: "Fungsi Utama",
+                // Tooltips Butang Kawalan Bahasa Melayu
+                tipZoomIn: "Zum Masuk", tipZoomOut: "Zum Keluar", tipLeft: "Pusing Kiri", tipRight: "Pusing Kanan",
+                tipUp: "Dongak Atas", tipDown: "Tunduk Bawah", tipReset: "Reset Semula", tipFull: "Skrin Penuh",
+                default: { name: "Arahan", desc: "Klik pada mana-mana titik bernombor pada model 3D untuk melihat fungsi struktur organel." },
+                nucleus: { name: "Nukleus", desc: "Mengawal semua aktiviti di dalam sel dan mengandungi maklumat genetik (DNA)." },
+                mitochondria: { name: "Mitokondria", desc: "Menghasilkan tenaga untuk aktiviti sel melalui proses respirasi." },
+                membrane: { name: "Membran Sel", desc: "Mengawal pergerakan bahan masuk dan keluar dari sel." },
+                cytoplasm: { name: "Sitoplasma", desc: "Medium jeli tempat berlaku kebanyakan tindak balas kimia sel." },
+                cellWall: { name: "Dinding Sel", desc: "MEMBERI SOKONGAN, perlindungan, dan bentuk tetap kepada sel tumbuhan." },
+                chloroplast: { name: "Kloroplas", desc: "MENYERAP CAHAYA MATAHARI untuk menjalankan proses fotosintesis." },
+                vacuole: { name: "Vakuol", desc: "Sokongan segar apabila diisi dengan sebatian sap sel." },
+                footerText: "© 2026 BioCell-AR | Pembelajaran Interaktif Realiti Terimbuh (AR) Sains Tingkatan 1 KSSM"
+            }
+        };
+
+        const comparisonData = [
+            { organelle: "Nukleus", animal: true, plant: true, desc_ms: "Mengawal aktiviti sel", desc_en: "Controls cell activities" },
+            { organelle: "Sitoplasma", animal: true, plant: true, desc_ms: "Medium tindak balas kimia", desc_en: "Chemical reaction medium" },
+            { organelle: "Membran Sel", animal: true, plant: true, desc_ms: "Mengawal laluan bahan", desc_en: "Controls substance movement" },
+            { organelle: "Mitokondria", animal: true, plant: true, desc_ms: "Pusat penjanaan tenaga", desc_en: "Energy powerhouse" },
+            { organelle: "Dinding Sel", animal: false, plant: true, desc_ms: "Mengekalkan bentuk sel tetap", desc_en: "Provides fixed cell shape" },
+            { organelle: "Kloroplas", animal: false, plant: true, desc_ms: "Menyerap cahaya fotosintesis", desc_en: "Absorbs light for photosynthesis" },
+            { organelle: "Vakuol Saiz Besar", animal: false, plant: true, desc_ms: "Menyimpan sap sel & sokongan", desc_en: "Stores cell sap & support" }
+        ];
+
+        function changeCellMode(mode) {
+            currentCellMode = mode;
+            selectedOrganelle = 'default';
+
+            document.getElementById('tab-animal').classList.toggle('active', mode === 'animal');
+            document.getElementById('tab-plant').classList.toggle('active', mode === 'plant');
+            document.getElementById('tab-comparison').classList.toggle('active', mode === 'comparison');
+
+            const modelViewer = document.getElementById('cell-model');
+            const workspace3D = document.getElementById('workspace-3d');
+            const workspaceComp = document.getElementById('workspace-comparison');
+
+            if (mode === 'animal') {
+                workspace3D.style.display = 'flex';
+                workspaceComp.style.display = 'none';
+                modelViewer.src = "assets/animal_cell.glb";
+                modelViewer.innerHTML = `
+                    <button class="hotspot" slot="hotspot-1" data-position="-0.33488400658741735m 0.4365954777638752m -0.3188154620279864m" data-normal="0.3722882212729404m 0.0810115865333608m 0.9245748229044407m" onclick="showInfo('nucleus')">1</button>
+                    <button class="hotspot" slot="hotspot-2" data-position="-0.3544448958788808m 0.10079463408202072m 3.326898045020408m" data-normal="0.9540340413393247m 0.2813153820607738m 0.10334749044730926m" onclick="showInfo('mitochondria')">2</button>
+                    <button class="hotspot" slot="hotspot-3" data-position="-2.987499472820628m -0.028234045746415345m -0.9420083542499613m" data-normal="0.8761916628678218m 0.36395660967772936m 0.31594897719855686m" onclick="showInfo('membrane')">3</button>
+                    <button class="hotspot" slot="hotspot-4" data-position="-1.868942774705007m -0.11139942592987305m 2.40046167109236m" data-normal="-0.013833720776465682m 0.9945705345307302m -0.10314106850686028m" onclick="showInfo('cytoplasm')">4</button>
+                    <button slot="ar-button" class="control-btn ar-btn">📷 View in AR</button>
+                `;
+            } else if (mode === 'plant') {
+                workspace3D.style.display = 'flex';
+                workspaceComp.style.display = 'none';
+                modelViewer.src = "assets/plant_cell.glb";
+                modelViewer.innerHTML = `
+                    <button class="hotspot" slot="hotspot-2" data-position="0.25m 2.60m 0.30m" data-normal="0m 1m 0m" onclick="showInfo('nucleus')">1</button>
+                    <button class="hotspot" slot="hotspot-4" data-position="-0.08m -0.25m 0.25m" data-normal="0m 1m 0m" onclick="showInfo('mitochondria')">2</button>
+                    <button class="hotspot" slot="hotspot-7" data-position="-5.706m 0.769m -2.373m" data-normal="0m 1m 0m" onclick="showInfo('membrane')">3</button>
+                    <button class="hotspot" slot="hotspot-8" data-position="0.923m 0.664m 4.730m" data-normal="0m 1m 0m" onclick="showInfo('cytoplasm')">4</button>
+                    <button class="hotspot" slot="hotspot-9" data-position="-3.316m 0.733m 4.701m" data-normal="-0.359m 0.887m 0.288m" onclick="showInfo('cellWall')">5</button>
+                    <button class="hotspot" slot="hotspot-10" data-position="1.151m 0.740m 3.527m" data-normal="0m 1m 0m" onclick="showInfo('chloroplast')">6</button>
+                    <button class="hotspot" slot="hotspot-11" data-position="1.734m -0.334m -3.266m" data-normal="0.193m 0.976m -0.090m" onclick="showInfo('vacuole')">7</button>
+                    <button slot="ar-button" class="control-btn ar-btn">📷 View in AR</button>
+                `;
+            } else if (mode === 'comparison') {
+                workspace3D.style.display = 'none';
+                workspaceComp.style.display = 'block';
+                renderComparisonTable();
+            }
+
+            render();
+        }
+
+        function renderComparisonTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            comparisonData.forEach(item => {
+                const tr = document.createElement('tr');
+                const animalBadge = item.animal ? '<span class="badge-present">✔ ADA</span>' : '<span class="badge-absent">✖ TIADA</span>';
+                const plantBadge = item.plant ? '<span class="badge-present">✔ ADA</span>' : '<span class="badge-absent">✖ TIADA</span>';
+                const desc = currentLang === 'ms' ? item.desc_ms : item.desc_en;
+
+                tr.innerHTML = `
+                    <td><strong>${item.organelle}</strong></td>
+                    <td>${animalBadge}</td>
+                    <td>${plantBadge}</td>
+                    <td>${desc}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function showInfo(organelle) {
+            selectedOrganelle = organelle;
+            render();
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            render();
+            if (currentCellMode === 'comparison') renderComparisonTable();
+        }
+
+        function render() {
+            document.getElementById('btn-ms').classList.toggle('active', currentLang === 'ms');
+            document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
+
+            document.getElementById('nav-home').innerText = data[currentLang].navHome;
+            document.getElementById('nav-explorer').innerText = data[currentLang].navExplorer;
+            document.getElementById('nav-quiz').innerText = data[currentLang].navQuiz;
+            document.getElementById('nav-about').innerText = data[currentLang].navAbout;
+            document.getElementById('nav-help').innerText = data[currentLang].navHelp;
+
+            document.getElementById('btn-back').innerText = data[currentLang].backBtn;
+            document.getElementById('btn-fullscreen').innerText = "⛶ " + data[currentLang].fullscreenBtn;
+
+            // Kemas kini tooltip/tajuk butang kawalan mengikut bahasa semasa
+            document.getElementById('btn-zoomin').title = data[currentLang].tipZoomIn;
+            document.getElementById('btn-zoomout').title = data[currentLang].tipZoomOut;
+            document.getElementById('btn-left').title = data[currentLang].tipLeft;
+            document.getElementById('btn-right').title = data[currentLang].tipRight;
+            document.getElementById('btn-up').title = data[currentLang].tipUp;
+            document.getElementById('btn-down').title = data[currentLang].tipDown;
+            document.getElementById('btn-reset').title = data[currentLang].tipReset;
+
+            document.getElementById('tab-animal').innerText = data[currentLang].tabAnimal;
+            document.getElementById('tab-plant').innerText = data[currentLang].tabPlant;
+            document.getElementById('tab-comparison').innerText = data[currentLang].tabComp;
+
+            document.getElementById('panel-title').innerText = data[currentLang].panelTitle;
+            document.getElementById('quiz-btn-text').innerText = data[currentLang].quizBtn;
+            
+            document.getElementById('comp-title').innerText = data[currentLang].compTitle;
+            document.getElementById('th-org').innerText = data[currentLang].thOrg;
+            document.getElementById('th-animal').innerText = data[currentLang].thAnimal;
+            document.getElementById('th-plant').innerText = data[currentLang].thPlant;
+            document.getElementById('th-func').innerText = data[currentLang].thFunc;
+            document.getElementById('footer-text').innerHTML = data[currentLang].footerText;
+
+            document.getElementById('org-name').innerText = data[currentLang][selectedOrganelle].name;
+            document.getElementById('org-desc').innerText = data[currentLang][selectedOrganelle].desc;
+        }
+    </script>
+</body>
+</html>
