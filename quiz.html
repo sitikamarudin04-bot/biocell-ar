@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioCell-AR - Kembara Dunia Sel</title>
+    <style>
+        :root {
+            --neon-blue: #00f2fe;
+            --neon-purple: #9333ea;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('assets/biocellar-background.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* HEADER & NAV KONSISTEN */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(6, 10, 20, 0.9);
+            backdrop-filter: blur(10px); 
+            padding: 15px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7); 
+            border-bottom: 1px solid rgba(0, 242, 254, 0.3);
+            border-top: 4px solid var(--neon-purple);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-title {
+            color: var(--neon-blue);
+            font-size: 26px;
+            font-weight: 800;
+            text-decoration: none;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--neon-blue), #0066ff);
+            color: white;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+            font-weight: bold;
+        }
+
+        .nav-item:hover:not(.active) {
+            color: var(--neon-blue);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .lang-switcher {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 3px;
+            border-radius: 20px;
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            padding: 6px 16px;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 16px;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active {
+            background-color: var(--neon-blue);
+            color: #040914;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.7);
+        }
+
+        /* MAIN CONTAINER */
+        .arcade-container {
+            max-width: 1350px;
+            margin: 35px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        /* HALL OF FAME (KOTAK PUTIH KIRI) */
+        .hall-of-fame {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid #cbd5e1;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            height: fit-content;
+            color: #1e293b;
+        }
+
+        .hall-of-fame h2 {
+            color: #0046ad;
+            font-size: 19px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 2px solid #e8f0fe;
+            padding-bottom: 10px;
+        }
+
+        .stat-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .stat-value {
+            color: #0066ff;
+            font-weight: bold;
+        }
+
+        /* MAIN CONTENT KANAN */
+        .arcade-main {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .arcade-banner {
+            text-align: center;
+            padding: 5px 0;
+        }
+
+        .arcade-banner h1 {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 30%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        /* GRID KAD PERMAINAN */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid #cbd5e1;
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            color: #1e293b;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 12px 35px rgba(0, 242, 254, 0.3);
+        }
+
+        .game-card h3 {
+            color: #0f172a;
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .game-card p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, #0066ff, #0046ad);
+            color: #ffffff;
+            border: none;
+            padding: 12px 0;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+            transition: all 0.3s;
+            display: block;
+            width: 100%;
+        }
+
+        .play-btn:hover {
+            background: linear-gradient(135deg, #0046ad, #002b6b);
+            box-shadow: 0 0 20px rgba(0, 102, 255, 0.5);
+        }
+
+        @media screen and (max-width: 900px) {
+            .arcade-container {
+                grid-template-columns: 1fr;
+            }
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            .header-container {
+                padding: 10px 15px;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .nav-links {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- KONSISTEN TOP NAVIGATION BAR -->
+    <div class="header-container">
+        <a href="index.html" class="logo-title">BioCell-AR</a>
+        
+        <div class="nav-links">
+            <a href="index.html" class="nav-item" id="nav-home">Utama</a>
+            <a href="explorer.html" class="nav-item" id="nav-explorer">Penjelajah 3D</a>
+            <a href="quiz.html" class="nav-item active" id="nav-quiz">Permainan Kuiz</a>
+            <a href="about.html" class="nav-item" id="nav-about">Tentang Kami</a>
+            <a href="help.html" class="nav-item" id="nav-help">Bantuan</a>
+            
+            <div class="lang-switcher">
+                <button class="lang-btn active" onclick="changeLanguage('bm')" id="btn-bm">BM</button>
+                <button class="lang-btn" onclick="changeLanguage('en')" id="btn-en">EN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div class="arcade-container">
+        
+        <!-- SIDEBAR KIRI: HALL OF FAME (DENGAN NAMA DRAG & DROP) -->
+        <div class="hall-of-fame">
+            <h2 id="hof-title">REKOD PENCAPAIAN</h2>
+            <div class="stat-item">
+                <span id="stat-drag1">Drag & Drop (Haiwan)</span>
+                <span class="stat-value" id="score-animal">0 / 4</span>
+            </div>
+            <div class="stat-item">
+                <span id="stat-drag2">Drag & Drop (Tumbuhan)</span>
+                <span class="stat-value" id="score-plant">0 / 7</span>
+            </div>
+            <div class="stat-item">
+                <span id="stat-match1">Padanan Fungsi (Haiwan)</span>
+                <span class="stat-value" id="score-match-animal">0 / 4</span>
+            </div>
+            <div class="stat-item">
+                <span id="stat-match2">Padanan Fungsi (Tumbuhan)</span>
+                <span class="stat-value" id="score-match-plant">0 / 7</span>
+            </div>
+            <div class="stat-item">
+                <span id="stat-speed">Kuiz Pantas</span>
+                <span class="stat-value" id="score-speed">0 / 5</span>
+            </div>
+            <div class="stat-item">
+                <span id="stat-hotspot1">Hotspot (Haiwan)</span>
+                <span class="stat-value" id="score-hotspot-animal">0 / 4</span>
+            </div>
+            <div class="stat-item">
+                <span id="stat-hotspot2">Hotspot (Tumbuhan)</span>
+                <span class="stat-value" id="score-hotspot-plant">0 / 7</span>
+            </div>
+            <div class="stat-item" style="background: #e8f0fe; border-color: #baddff;">
+                <strong id="stat-total" style="color: #0046ad;">Jumlah Keseluruhan</strong>
+                <span class="stat-value" id="score-total" style="font-size: 15px;">0</span>
+            </div>
+        </div>
+
+        <!-- UTAMA KANAN: PILIHAN MOD PERMAINAN KUIZ -->
+        <div class="arcade-main">
+            <div class="arcade-banner">
+                <h1 id="arcade-title">KEMBARA DUNIA SEL</h1>
+            </div>
+
+            <div class="games-grid">
+                <!-- Kad 1: Drag & Drop -->
+                <div class="game-card">
+                    <div>
+                        <h3 id="card1-title">Drag & Drop</h3>
+                        <p id="card1-desc">Heret dan lepaskan nama organel yang betul pada rajah sel haiwan dan sel tumbuhan dengan tepat.</p>
+                    </div>
+                    <a href="quiz-dragdrop.html" class="play-btn" id="btn-play1">MAIN SEKARANG</a>
+                </div>
+
+                <!-- Kad 2: Padanan Fungsi Sel -->
+                <div class="game-card">
+                    <div>
+                        <h3 id="card2-title">Padanan Fungsi Sel</h3>
+                        <p id="card2-desc">Uji memori anda dengan memadankan organel sel bersama fungsi utamanya dengan tepat.</p>
+                    </div>
+                    <a href="quiz-match.html" class="play-btn" id="btn-play2">MAIN SEKARANG</a>
+                </div>
+
+                <!-- Kad 3: Kuiz Pantas -->
+                <div class="game-card">
+                    <div>
+                        <h3 id="card3-title">Kuiz Pantas (Speed Quiz)</h3>
+                        <p id="card3-desc">Jawab soalan aneka pilihan kilat mengenai ciri-ciri sel hidup sebelum masa tamat!</p>
+                    </div>
+                    <a href="quiz-speed.html" class="play-btn" id="btn-play3">MAIN SEKARANG</a>
+                </div>
+
+                <!-- Kad 4: Pengecaman Hotspot (DISEMAK AKTIF) -->
+                <div class="game-card">
+                    <div>
+                        <h3 id="card4-title">Pengecaman Hotspot</h3>
+                        <p id="card4-desc">Cari dan klik terus pada struktur organel di atas rajah sel berdasarkan arahan kuiz.</p>
+                    </div>
+                    <a href="quiz-hotspot.html" class="play-btn" id="btn-play4">MAIN SEKARANG</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const content = {
+            bm: {
+                home: "Utama", explorer: "Penjelajah 3D", quiz: "Permainan Kuiz", about: "Tentang Kami", help: "Bantuan",
+                hofTitle: "REKOD PENCAPAIAN",
+                statDrag1: "Drag & Drop (Haiwan)",
+                statDrag2: "Drag & Drop (Tumbuhan)",
+                statMatch1: "Padanan Fungsi (Haiwan)",
+                statMatch2: "Padanan Fungsi (Tumbuhan)",
+                statSpeed: "Kuiz Pantas",
+                statHotspot1: "Hotspot (Haiwan)",
+                statHotspot2: "Hotspot (Tumbuhan)",
+                statTotal: "Jumlah Keseluruhan",
+                arcadeTitle: "KEMBARA DUNIA SEL",
+                card1Title: "Drag & Drop",
+                card1Desc: "Heret dan lepaskan nama organel yang betul pada rajah sel haiwan dan sel tumbuhan dengan tepat.",
+                card2Title: "Padanan Fungsi Sel",
+                card2Desc: "Uji memori anda dengan memadankan organel sel bersama fungsi utamanya dengan tepat.",
+                card3Title: "Kuiz Pantas (Speed Quiz)",
+                card3Desc: "Jawab soalan aneka pilihan kilat mengenai ciri-ciri sel hidup sebelum masa tamat!",
+                card4Title: "Pengecaman Hotspot",
+                card4Desc: "Cari dan klik terus pada struktur organel di atas rajah sel berdasarkan arahan kuiz.",
+                playBtn: "MAIN SEKARANG"
+            },
+            en: {
+                home: "Home", explorer: "3D Explorer", quiz: "Quiz Game", about: "About", help: "Help",
+                hofTitle: "HALL OF FAME",
+                statDrag1: "Drag & Drop (Animal)",
+                statDrag2: "Drag & Drop (Plant)",
+                statMatch1: "Organelle Match (Animal)",
+                statMatch2: "Organelle Match (Plant)",
+                statSpeed: "Speed Quiz",
+                statHotspot1: "Hotspot (Animal)",
+                statHotspot2: "Hotspot (Plant)",
+                statTotal: "Total Score",
+                arcadeTitle: "CELL ADVENTURE",
+                card1Title: "Drag & Drop",
+                card1Desc: "Drag and drop the correct organelle names onto animal and plant cell diagrams accurately.",
+                card2Title: "Organelle Match",
+                card2Desc: "Test your memory by matching cell organelles with their primary functions accurately.",
+                card3Title: "Speed Quiz",
+                card3Desc: "Answer rapid-fire multiple-choice questions about living cell features before time runs out!",
+                card4Title: "Hotspot Spotter",
+                card4Desc: "Find and click directly on specific organelle structures on the cell diagram based on prompts.",
+                playBtn: "PLAY NOW"
+            }
+        };
+
+        function changeLanguage(lang) {
+            document.getElementById('btn-bm').classList.toggle('active', lang === 'bm');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            
+            document.getElementById('nav-home').innerText = content[lang].home;
+            document.getElementById('nav-explorer').innerText = content[lang].explorer;
+            document.getElementById('nav-quiz').innerText = content[lang].quiz;
+            document.getElementById('nav-about').innerText = content[lang].about;
+            document.getElementById('nav-help').innerText = content[lang].help;
+
+            document.getElementById('hof-title').innerText = content[lang].hofTitle;
+            document.getElementById('stat-drag1').innerText = content[lang].statDrag1;
+            document.getElementById('stat-drag2').innerText = content[lang].statDrag2;
+            document.getElementById('stat-match1').innerText = content[lang].statMatch1;
+            document.getElementById('stat-match2').innerText = content[lang].statMatch2;
+            document.getElementById('stat-speed').innerText = content[lang].statSpeed;
+            document.getElementById('stat-hotspot1').innerText = content[lang].statHotspot1;
+            document.getElementById('stat-hotspot2').innerText = content[lang].statHotspot2;
+            document.getElementById('stat-total').innerText = content[lang].statTotal;
+            document.getElementById('arcade-title').innerText = content[lang].arcadeTitle;
+            
+            document.getElementById('card1-title').innerText = content[lang].card1Title;
+            document.getElementById('card1-desc').innerText = content[lang].card1Desc;
+            document.getElementById('card2-title').innerText = content[lang].card2Title;
+            document.getElementById('card2-desc').innerText = content[lang].card2Desc;
+            document.getElementById('card3-title').innerText = content[lang].card3Title;
+            document.getElementById('card3-desc').innerText = content[lang].card3Desc;
+            document.getElementById('card4-title').innerText = content[lang].card4Title;
+            document.getElementById('card4-desc').innerText = content[lang].card4Desc;
+            
+            document.getElementById('btn-play1').innerText = content[lang].playBtn;
+            document.getElementById('btn-play2').innerText = content[lang].playBtn;
+            document.getElementById('btn-play3').innerText = content[lang].playBtn;
+            document.getElementById('btn-play4').innerText = content[lang].playBtn;
+        }
+
+        function loadStats() {
+            let animalScore = parseInt(localStorage.getItem('biocell_highscore_animal')) || 0;
+            let plantScore = parseInt(localStorage.getItem('biocell_highscore_plant')) || 0;
+            
+            let matchAnimal = parseInt(localStorage.getItem('biocell_match_highscore_animal')) || 0;
+            let matchPlant = parseInt(localStorage.getItem('biocell_match_highscore_plant')) || 0;
+
+            let speedScore = parseInt(localStorage.getItem('biocell_speed_highscore')) || 0;
+
+            let hotspotAnimal = parseInt(localStorage.getItem('biocell_hotspot_highscore_animal')) || 0;
+            let hotspotPlant = parseInt(localStorage.getItem('biocell_hotspot_highscore_plant')) || 0;
+            
+            let totalOverall = animalScore + plantScore + matchAnimal + matchPlant + speedScore + hotspotAnimal + hotspotPlant;
+            
+            document.getElementById('score-animal').innerText = `${animalScore} / 4`;
+            document.getElementById('score-plant').innerText = `${plantScore} / 7`;
+            document.getElementById('score-match-animal').innerText = `${matchAnimal} / 4`;
+            document.getElementById('score-match-plant').innerText = `${matchPlant} / 7`;
+            document.getElementById('score-speed').innerText = `${speedScore} / 5`;
+            document.getElementById('score-hotspot-animal').innerText = `${hotspotAnimal} / 4`;
+            document.getElementById('score-hotspot-plant').innerText = `${hotspotPlant} / 7`;
+            document.getElementById('score-total').innerText = totalOverall;
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>

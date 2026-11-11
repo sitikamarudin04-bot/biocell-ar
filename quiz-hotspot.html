@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioCell-AR - Pengecaman Hotspot</title>
+    <!-- Library Confetti untuk kesan kemenangan -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --neon-blue: #00f2fe;
+            --neon-purple: #9333ea;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* BAR NAVIGASI KHAS DALAM GAME */
+        .game-header-bar {
+            max-width: 1260px;
+            margin: 20px auto 10px auto;
+            padding: 15px 25px;
+            background: #ffffff;
+            border: 1px solid #d2e3fc;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .back-arcade-btn {
+            text-decoration: none;
+            color: #0066ff;
+            font-weight: 700;
+            font-size: 14px;
+            background: #e8f0fe;
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 1px solid #baddff;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .back-arcade-btn:hover {
+            background: #0066ff;
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 102, 255, 0.2);
+        }
+
+        .main-title-box h2 {
+            margin: 0;
+            color: #0046ad;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .header-right-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .lang-switcher {
+            display: flex;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 3px;
+            border-radius: 20px;
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            padding: 6px 14px;
+            font-weight: bold;
+            font-size: 13px;
+            border-radius: 16px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active {
+            background-color: #0066ff;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-board {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #856404;
+            text-align: right;
+            line-height: 1.4;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            min-width: 170px;
+        }
+
+        /* MOD PEMILIHAN JENIS SEL */
+        .cell-mode-container {
+            text-align: center;
+            margin: 15px 0 10px 0;
+        }
+
+        .mode-btn {
+            padding: 10px 22px;
+            font-weight: bold;
+            font-size: 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        #btn-mode-animal {
+            border: 2px solid #0066ff;
+            background-color: #0066ff;
+            color: white;
+            margin-right: 12px;
+        }
+
+        #btn-mode-plant {
+            border: 2px solid #10b981;
+            background-color: #ffffff;
+            color: #10b981;
+        }
+
+        /* RUANG UTAMA HOTSPOT */
+        .hotspot-container {
+            max-width: 900px;
+            margin: 20px auto 40px auto;
+            background: #ffffff;
+            border: 1px solid #d2e3fc;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .instruction-banner {
+            background: #e8f0fe;
+            border: 1px solid #baddff;
+            color: #0046ad;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .cell-image-wrapper {
+            position: relative;
+            width: 480px;
+            height: 480px;
+            margin: 0 auto;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        /* TITIK HOTSPOT KLIK */
+        .hotspot-pin {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background-color: rgba(0, 102, 255, 0.85);
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(0, 102, 255, 0.6);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .hotspot-pin:hover {
+            transform: translate(-50%, -50%) scale(1.25);
+            background-color: #10b981;
+        }
+
+        .hotspot-pin.correct {
+            background-color: #10b981 !important;
+            border-color: #d1fae5;
+            box-shadow: 0 0 15px #10b981;
+        }
+
+        .hotspot-pin.wrong {
+            background-color: #ef4444 !important;
+            border-color: #fee2e2;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(-50%, -50%) translateX(0); }
+            25% { transform: translate(-50%, -50%) translateX(-6px); }
+            50% { transform: translate(-50%, -50%) translateX(6px); }
+            75% { transform: translate(-50%, -50%) translateX(-6px); }
+            100% { transform: translate(-50%, -50%) translateX(0); }
+        }
+
+        .start-screen, .result-screen {
+            padding: 30px 20px;
+        }
+
+        .start-screen h2, .result-screen h2 {
+            color: #0046ad;
+            font-size: 26px;
+            margin-bottom: 15px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #0066ff, #0046ad);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #0046ad, #002b6b);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BAR NAVIGASI & SWITCHER BAHASA -->
+    <div class="game-header-bar">
+        <a href="quiz.html" class="back-arcade-btn" id="btn-back">← Kembali ke Menu Kuiz</a>
+        
+        <div class="main-title-box">
+            <h2 id="main-title">Pengecaman Hotspot</h2>
+        </div>
+        
+        <div class="header-right-group">
+            <div class="lang-switcher">
+                <button class="lang-btn active" onclick="changeLanguage('bm')" id="btn-bm">BM</button>
+                <button class="lang-btn" onclick="changeLanguage('en')" id="btn-en">EN</button>
+            </div>
+            <div class="score-board" id="score-display">Markah: 0 / 4</div>
+        </div>
+    </div>
+
+    <!-- MOD PEMILIHAN JENIS SEL -->
+    <div class="cell-mode-container">
+        <button class="mode-btn" id="btn-mode-animal" onclick="switchCellMode('animal')">🟠 Sel Haiwan</button>
+        <button class="mode-btn" id="btn-mode-plant" onclick="switchCellMode('plant')">🟢 Sel Tumbuhan</button>
+    </div>
+
+    <!-- UTAMA HOTSPOT -->
+    <div class="hotspot-container">
+        
+        <!-- SKRIN MULA -->
+        <div class="start-screen" id="start-screen">
+            <h2 id="start-title">Cabaran Pengecaman Hotspot</h2>
+            <p id="start-desc" style="color: #64748b; line-height: 1.6; margin-bottom: 20px;">Sila baca arahan di atas rajah sel, kemudian klik terus pada titik organel yang tepat pada rajah sel!</p>
+            <p id="start-highscore" style="font-weight: bold; color: #b58900; font-size: 15px;"></p>
+            <button class="action-btn" id="start-btn" onclick="startHotspotGame()">MULA SEKARANG</button>
+        </div>
+
+        <!-- SKRIN PERMAINAN -->
+        <div id="game-play-area" style="display: none;">
+            <div class="instruction-banner" id="instruction-banner">
+                Sila klik pada: <span id="target-organelle-name" style="color: #002b6b;">-</span>
+            </div>
+
+            <div class="cell-image-wrapper" id="cell-image-wrapper">
+                <!-- Hotspot Pins dijana dinamik melalui JS -->
+            </div>
+        </div>
+
+        <!-- SKRIN KEPUTUSAN -->
+        <div class="result-screen" id="result-screen" style="display: none;">
+            <h2 id="result-title">Tahniah! Cabaran Selesai! 🎉</h2>
+            <p id="result-score-text" style="font-size: 18px; font-weight: bold; color: #0f172a;"></p>
+            <p id="result-highscore-text" style="color: #b58900; font-weight: bold;"></p>
+            <button class="action-btn" id="restart-btn" onclick="startHotspotGame()">MAIN SEMULA</button>
+        </div>
+
+    </div>
+
+    <script>
+        const content = {
+            bm: {
+                title: "Pengecaman Hotspot",
+                backBtn: "← Kembali ke Menu Kuiz",
+                startTitle: "Cabaran Pengecaman Hotspot",
+                startDesc: "Baca arahan di atas rajah sel, kemudian klik terus pada titik organel yang tepat pada rajah sel!",
+                startBtn: "MULA SEKARANG",
+                restartBtn: "MAIN SEMULA",
+                scoreLabel: "Markah",
+                highScoreLabel: "Markah Tertinggi",
+                instructionPrefix: "Sila klik pada struktur:"
+            },
+            en: {
+                title: "Hotspot Spotter",
+                backBtn: "← Back to Quiz Menu",
+                startTitle: "Hotspot Spotter Challenge",
+                startDesc: "Read the prompt above the cell diagram, then click directly on the correct organelle pin!",
+                startBtn: "START NOW",
+                restartBtn: "PLAY AGAIN",
+                scoreLabel: "Score",
+                highScoreLabel: "High Score",
+                instructionPrefix: "Please click on structure:"
+            }
+        };
+
+        let currentLang = 'bm';
+        let currentCellType = 'animal';
+        let currentMissionIndex = 0;
+        let score = 0;
+        let missions = [];
+
+        // Definisi koordinat hotspot (%) berpandukan imej sel haiwan dan tumbuhan
+        const animalHotspots = [
+            { key: "nucleus", bm: "Nukleus", en: "Nucleus", top: "50%", left: "45%" },
+            { key: "mitochondria", bm: "Mitokondria", en: "Mitochondria", top: "38%", left: "30%" },
+            { key: "membrane", bm: "Membran Sel", en: "Cell Membrane", top: "22%", left: "32%" },
+            { key: "cytoplasm", bm: "Sitoplasma", en: "Cytoplasm", top: "65%", left: "35%" }
+        ];
+
+        const plantHotspots = [
+            { key: "wall", bm: "Dinding Sel", en: "Cell Wall", top: "18%", left: "20%" },
+            { key: "membrane", bm: "Membran Sel", en: "Cell Membrane", top: "30%", left: "25%" },
+            { key: "nucleus", bm: "Nukleus", en: "Nucleus", top: "45%", left: "45%" },
+            { key: "chloroplast", bm: "Kloroplas", en: "Chloroplast", top: "28%", left: "65%" },
+            { key: "vacuole", bm: "Vakuol", en: "Vacuole", top: "58%", left: "48%" },
+            { key: "mitochondria", bm: "Mitokondria", en: "Mitochondria", top: "65%", left: "68%" },
+            { key: "cytoplasm", bm: "Sitoplasma", en: "Cytoplasm", top: "78%", left: "35%" }
+        ];
+
+        function switchCellMode(type) {
+            currentCellType = type;
+            document.getElementById('btn-mode-animal').style.backgroundColor = (type === 'animal') ? '#0066ff' : '#ffffff';
+            document.getElementById('btn-mode-animal').style.color = (type === 'animal') ? 'white' : '#0066ff';
+            
+            document.getElementById('btn-mode-plant').style.backgroundColor = (type === 'plant') ? '#10b981' : '#ffffff';
+            document.getElementById('btn-mode-plant').style.color = (type === 'plant') ? 'white' : '#10b981';
+
+            displayStartHighScore();
+        }
+
+        function displayStartHighScore() {
+            let highScoreKey = 'biocell_hotspot_highscore_' + currentCellType;
+            let highScore = localStorage.getItem(highScoreKey) || 0;
+            let maxScore = currentCellType === 'animal' ? 4 : 7;
+            document.getElementById('start-highscore').innerText = `${content[currentLang].highScoreLabel}: ${highScore} / ${maxScore}`;
+        }
+
+        function updateScoreBoard() {
+            let maxScore = currentCellType === 'animal' ? 4 : 7;
+            let highScoreKey = 'biocell_hotspot_highscore_' + currentCellType;
+            let highScore = localStorage.getItem(highScoreKey) || 0;
+
+            document.getElementById('score-display').innerHTML = `
+                ${content[currentLang].scoreLabel}: ${score} / ${maxScore} <br>
+                <small style="font-size: 11px; color: #b58900;">${content[currentLang].highScoreLabel}: ${highScore}</small>
+            `;
+        }
+
+        function startHotspotGame() {
+            score = 0;
+            currentMissionIndex = 0;
+            missions = [...(currentCellType === 'animal' ? animalHotspots : plantHotspots)].sort(() => Math.random() - 0.5);
+
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('game-play-area').style.display = 'block';
+
+            updateScoreBoard();
+            loadMission();
+        }
+
+        function loadMission() {
+            if (currentMissionIndex >= missions.length) {
+                endGame();
+                return;
+            }
+
+            const currentTarget = missions[currentMissionIndex];
+            const wrapper = document.getElementById('cell-image-wrapper');
+            
+            // Set background imej mengikut mod sel
+            wrapper.style.backgroundImage = currentCellType === 'animal' ? "url('assets/sel-haiwan.png')" : "url('assets/sel-tumbuhan.png')";
+            wrapper.innerHTML = '';
+
+            // Papar arahan
+            let orgName = currentLang === 'bm' ? currentTarget.bm : currentTarget.en;
+            document.getElementById('target-organelle-name').innerText = orgName;
+
+            // Jana titik hotspot secara rawak kedudukannya di atas imej untuk dipilih pelajar
+            let allSpots = [...(currentCellType === 'animal' ? animalHotspots : plantHotspots)].sort(() => Math.random() - 0.5);
+
+            allSpots.forEach(spot => {
+                const pin = document.createElement('div');
+                pin.className = 'hotspot-pin';
+                pin.style.top = spot.top;
+                pin.style.left = spot.left;
+                pin.onclick = () => checkHotspot(spot.key, currentTarget.key, pin);
+                wrapper.appendChild(pin);
+            });
+        }
+
+        function checkHotspot(clickedKey, targetKey, pinElement) {
+            if (clickedKey === targetKey) {
+                pinElement.classList.add('correct');
+                pinElement.innerText = "✓";
+                score++;
+                updateScoreBoard();
+
+                setTimeout(() => {
+                    currentMissionIndex++;
+                    loadMission();
+                }, 800);
+            } else {
+                pinElement.classList.add('wrong');
+                pinElement.innerText = "✗";
+                setTimeout(() => {
+                    pinElement.classList.remove('wrong');
+                    pinElement.innerText = "";
+                }, 500);
+            }
+        }
+
+        function endGame() {
+            document.getElementById('game-play-area').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+
+            let maxScore = missions.length;
+            document.getElementById('result-score-text').innerText = `${content[currentLang].scoreLabel}: ${score} / ${maxScore}`;
+
+            let highScoreKey = 'biocell_hotspot_highscore_' + currentCellType;
+            let highScore = parseInt(localStorage.getItem(highScoreKey)) || 0;
+            if (score > highScore) {
+                localStorage.setItem(highScoreKey, score);
+                highScore = score;
+            }
+
+            document.getElementById('result-highscore-text').innerText = `${content[currentLang].highScoreLabel}: ${highScore} / ${maxScore}`;
+
+            // Simpan jumlah markah hotspot ke localStorage untuk dihubungkan ke Hall of Fame utama
+            let animalBest = parseInt(localStorage.getItem('biocell_hotspot_highscore_animal')) || 0;
+            let plantBest = parseInt(localStorage.getItem('biocell_hotspot_highscore_plant')) || 0;
+            localStorage.setItem('biocell_hotspot_score', animalBest + plantBest);
+
+            if (score === maxScore) {
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+            }
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('btn-bm').classList.toggle('active', lang === 'bm');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            
+            document.getElementById('main-title').innerText = content[lang].title;
+            document.getElementById('btn-back').innerText = content[lang].backBtn;
+            document.getElementById('start-title').innerText = content[lang].startTitle;
+            document.getElementById('start-desc').innerText = content[lang].startDesc;
+            document.getElementById('start-btn').innerText = content[lang].startBtn;
+            document.getElementById('restart-btn').innerText = content[lang].restartBtn;
+
+            displayStartHighScore();
+            updateScoreBoard();
+        }
+
+        // Permulaan lalai
+        switchCellMode('animal');
+    </script>
+</body>
+</html>

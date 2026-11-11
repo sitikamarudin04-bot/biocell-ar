@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioCell-AR - Kuiz Pantas (Speed Quiz)</title>
+    <!-- Library Confetti untuk kesan kemenangan -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --neon-blue: #00f2fe;
+            --neon-purple: #9333ea;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* BAR NAVIGASI KHAS DALAM GAME */
+        .game-header-bar {
+            max-width: 1260px;
+            margin: 20px auto 10px auto;
+            padding: 15px 25px;
+            background: #ffffff;
+            border: 1px solid #d2e3fc;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .back-arcade-btn {
+            text-decoration: none;
+            color: #0066ff;
+            font-weight: 700;
+            font-size: 14px;
+            background: #e8f0fe;
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 1px solid #baddff;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .back-arcade-btn:hover {
+            background: #0066ff;
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 102, 255, 0.2);
+        }
+
+        .main-title-box h2 {
+            margin: 0;
+            color: #0046ad;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .header-right-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .lang-switcher {
+            display: flex;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 3px;
+            border-radius: 20px;
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            padding: 6px 14px;
+            font-weight: bold;
+            font-size: 13px;
+            border-radius: 16px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active {
+            background-color: #0066ff;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-board {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #856404;
+            text-align: right;
+            line-height: 1.4;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            min-width: 170px;
+        }
+
+        /* RUANG UTAMA KUIZ PANTAS */
+        .quiz-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #ffffff;
+            border: 1px solid #d2e3fc;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .quiz-info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-weight: bold;
+            color: #475569;
+            font-size: 16px;
+        }
+
+        .timer-box {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1px solid #fecaca;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .timer-box.warning {
+            background: #ef4444;
+            color: #ffffff;
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.08); }
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #334155;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: #0066ff;
+            background: #e8f0fe;
+            color: #0046ad;
+            transform: translateY(-2px);
+        }
+
+        /* ANIMASI GEGAR UNTUK JAWAPAN SALAH */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+            100% { transform: translateX(0); }
+        }
+
+        .option-btn.correct {
+            border-color: #10b981 !important;
+            background: #d1fae5 !important;
+            color: #065f46 !important;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .option-btn.wrong {
+            border-color: #ef4444 !important;
+            background: #fee2e2 !important;
+            color: #991b1b !important;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .start-screen, .result-screen {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .start-screen h2, .result-screen h2 {
+            color: #0046ad;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .start-screen p, .result-screen p {
+            color: #64748b;
+            font-size: 16px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #0066ff, #0046ad);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+            transition: 0.3s;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #0046ad, #002b6b);
+            box-shadow: 0 0 20px rgba(0, 102, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BAR NAVIGASI & SWITCHER BAHASA -->
+    <div class="game-header-bar">
+        <a href="quiz.html" class="back-arcade-btn" id="btn-back">← Kembali ke Menu Kuiz</a>
+        
+        <div class="main-title-box">
+            <h2 id="main-title">Kuiz Pantas (Speed Quiz)</h2>
+        </div>
+        
+        <div class="header-right-group">
+            <div class="lang-switcher">
+                <button class="lang-btn active" onclick="changeLanguage('bm')" id="btn-bm">BM</button>
+                <button class="lang-btn" onclick="changeLanguage('en')" id="btn-en">EN</button>
+            </div>
+            <div class="score-board" id="score-display">Markah: 0 / 5</div>
+        </div>
+    </div>
+
+    <!-- UTAMA KUIZ -->
+    <div class="quiz-container" id="quiz-box">
+        
+        <!-- SKRIN MULA -->
+        <div class="start-screen" id="start-screen">
+            <h2 id="start-title">Cabaran Kuiz Pantas Sel</h2>
+            <p id="start-desc">Jawab soalan aneka pilihan berdasarkan silibus sel hidup dalam masa terpantas. Anda mempunyai 15 saat untuk setiap soalan!</p>
+            <p id="start-highscore" style="font-weight: bold; color: #b58900; font-size: 16px;"></p>
+            <button class="action-btn" id="start-btn" onclick="startQuiz()">MULA SEKARANG</button>
+        </div>
+
+        <!-- SKRIN SOALAN -->
+        <div id="game-play-area" style="display: none;">
+            <div class="quiz-info-bar">
+                <span id="question-counter">Soalan: 1 / 5</span>
+                <div class="timer-box" id="timer-text">Masa: 15s</div>
+            </div>
+
+            <div class="question-text" id="question-text"></div>
+
+            <div class="options-grid" id="options-container"></div>
+        </div>
+
+        <!-- SKRIN KEPUTUSAN -->
+        <div class="result-screen" id="result-screen" style="display: none;">
+            <h2 id="result-title">Kuiz Tamat! 🎉</h2>
+            <p id="result-score-text" style="font-size: 20px; font-weight: bold; color: #0f172a;">Markah Anda: 0 / 5</p>
+            <p id="result-highscore-text" style="color: #b58900; font-weight: bold; font-size: 16px;"></p>
+            <button class="action-btn" id="restart-btn" onclick="startQuiz()">CUBA LAGI</button>
+        </div>
+
+    </div>
+
+    <script>
+        const content = {
+            bm: {
+                title: "Kuiz Pantas (Speed Quiz)",
+                backBtn: "← Kembali ke Menu Kuiz",
+                startTitle: "Cabaran Kuiz Pantas Sel",
+                startDesc: "Jawab soalan aneka pilihan berdasarkan silibus sel hidup dalam masa terpantas. Anda mempunyai 15 saat untuk setiap soalan!",
+                startBtn: "MULA SEKARANG",
+                restartBtn: "CUBA LAGI",
+                scoreLabel: "Markah",
+                highScoreLabel: "Markah Tertinggi",
+                timeLabel: "Masa",
+                qCounter: "Soalan"
+            },
+            en: {
+                title: "Speed Quiz",
+                backBtn: "← Back to Quiz Menu",
+                startTitle: "Cell Speed Quiz Challenge",
+                startDesc: "Answer multiple-choice questions based on living cell science in record time. You have 15 seconds per question!",
+                startBtn: "START NOW",
+                restartBtn: "TRY AGAIN",
+                scoreLabel: "Score",
+                highScoreLabel: "High Score",
+                timeLabel: "Time",
+                qCounter: "Question"
+            }
+        };
+
+        let currentLang = 'bm';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 15;
+
+        const questions = [
+            {
+                q_bm: "Apakah fungsi utama bagi Nukleus di dalam sel?",
+                q_en: "What is the primary function of the Nucleus inside a cell?",
+                options_bm: [
+                    "Mengawal segala aktiviti sel dan mengandungi bahan genetik (DNA)",
+                    "Menghasilkan tenaga melalui respirasi sel",
+                    "Menyerap tenaga cahaya untuk proses fotosintesis",
+                    "Memberikan bentuk tetap kepada sel tumbuhan"
+                ],
+                options_en: [
+                    "Controls all cell activities and contains genetic material (DNA)",
+                    "Produces energy through cellular respiration",
+                    "Absorbs light energy for photosynthesis",
+                    "Provides fixed shape to plant cells"
+                ],
+                correct: 0
+            },
+            {
+                q_bm: "Organel manakah yang hanya terdapat dalam sel tumbuhan untuk menyerap tenaga cahaya?",
+                q_en: "Which organelle is found only in plant cells to absorb light energy?",
+                options_bm: ["Vakuol", "Mitokondria", "Kloroplas", "Sitoplasma"],
+                options_en: ["Vacuole", "Mitochondria", "Chloroplast", "Cytoplasm"],
+                correct: 2
+            },
+            {
+                q_bm: "Apakah fungsi struktur Dinding Sel pada sel tumbuhan?",
+                q_en: "What is the function of the Cell Wall in plant cells?",
+                options_bm: [
+                    "Mengawal pergerakan bahan keluar masuk sel",
+                    "Memberikan sokongan, perlindungan dan bentuk tetap kepada sel",
+                    "Tempat berlakunya tindak balas kimia",
+                    "Menyimpan air dan sap sel"
+                ],
+                options_en: [
+                    "Controls movement of substances in and out",
+                    "Provides support, protection, and fixed shape to the cell",
+                    "Site where chemical reactions occur",
+                    "Stores water and cell sap"
+                ],
+                correct: 1
+            },
+            {
+                q_bm: "Apakah organel yang bertanggungjawab menghasilkan tenaga untuk tindak balas sel?",
+                q_en: "Which organelle is responsible for producing energy for cellular reactions?",
+                options_bm: ["Mitokondria", "Nukleus", "Kloroplas", "Dinding Sel"],
+                options_en: ["Mitochondria", "Nucleus", "Chloroplast", "Cell Wall"],
+                correct: 0
+            },
+            {
+                q_bm: "Apakah fungsi bagi Vakuol apabila ia dipenuhi dengan sap sel?",
+                q_en: "What is the function of the Vacuole when filled with cell sap?",
+                options_bm: [
+                    "Menghasilkan tenaga haba",
+                    "Mengandungi maklumat kromosom",
+                    "Memberikan sokongan kepada sel apabila menyegarkan sel",
+                    "Menjalankan proses respirasi"
+                ],
+                options_en: [
+                    "Produces heat energy",
+                    "Contains chromosome information",
+                    "Provides support to cells when filled with cell sap",
+                    "Carries out respiration"
+                ],
+                correct: 2
+            }
+        ];
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('btn-bm').classList.toggle('active', lang === 'bm');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            
+            document.getElementById('main-title').innerText = content[lang].title;
+            document.getElementById('btn-back').innerText = content[lang].backBtn;
+            document.getElementById('start-title').innerText = content[lang].startTitle;
+            document.getElementById('start-desc').innerText = content[lang].startDesc;
+            document.getElementById('start-btn').innerText = content[lang].startBtn;
+            document.getElementById('restart-btn').innerText = content[lang].restartBtn;
+
+            updateScoreDisplay();
+            displayStartHighScore();
+        }
+
+        function displayStartHighScore() {
+            let highScore = localStorage.getItem('biocell_speed_highscore') || 0;
+            document.getElementById('start-highscore').innerText = `${content[currentLang].highScoreLabel}: ${highScore} / ${questions.length}`;
+        }
+
+        function updateScoreDisplay() {
+            let highScore = localStorage.getItem('biocell_speed_highscore') || 0;
+            document.getElementById('score-display').innerHTML = `
+                ${content[currentLang].scoreLabel}: ${score} / ${questions.length} <br>
+                <small style="font-size: 11px; color: #b58900;">${content[currentLang].highScoreLabel}: ${highScore}</small>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('game-play-area').style.display = 'block';
+            updateScoreDisplay();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 15;
+            const timerBox = document.getElementById('timer-text');
+            timerBox.classList.remove('warning');
+            timerBox.innerText = `${content[currentLang].timeLabel}: ${timeLeft}s`;
+
+            if (currentQuestionIndex >= questions.length) {
+                endQuiz();
+                return;
+            }
+
+            const qData = questions[currentQuestionIndex];
+            document.getElementById('question-counter').innerText = `${content[currentLang].qCounter}: ${currentQuestionIndex + 1} / ${questions.length}`;
+            document.getElementById('question-text').innerText = currentLang === 'bm' ? qData.q_bm : qData.q_en;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            let options = currentLang === 'bm' ? qData.options_bm : qData.options_en;
+            options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectAnswer(btn, idx, qData.correct);
+                optionsContainer.appendChild(btn);
+            });
+
+            timer = setInterval(() => {
+                timeLeft--;
+                timerBox.innerText = `${content[currentLang].timeLabel}: ${timeLeft}s`;
+                
+                if (timeLeft <= 5) {
+                    timerBox.classList.add('warning');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(buttonElement, selectedIndex, correctIndex) {
+            clearInterval(timer);
+            const buttons = document.querySelectorAll('.option-btn');
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === correctIndex) {
+                    btn.classList.add('correct');
+                } else if (idx === selectedIndex && idx !== correctIndex) {
+                    btn.classList.add('wrong');
+                }
+            });
+
+            if (selectedIndex === correctIndex) {
+                score++;
+            }
+
+            updateScoreDisplay();
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadQuestion();
+            }, 1300);
+        }
+
+        function handleTimeOut() {
+            const buttons = document.querySelectorAll('.option-btn');
+            const qData = questions[currentQuestionIndex];
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === qData.correct) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadQuestion();
+            }, 1300);
+        }
+
+        function endQuiz() {
+            clearInterval(timer);
+            document.getElementById('game-play-area').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+
+            document.getElementById('result-score-text').innerText = `${content[currentLang].scoreLabel}: ${score} / ${questions.length}`;
+
+            let highScoreKey = 'biocell_speed_highscore';
+            let highScore = parseInt(localStorage.getItem(highScoreKey)) || 0;
+            if (score > highScore) {
+                localStorage.setItem(highScoreKey, score);
+                highScore = score;
+            }
+
+            document.getElementById('result-highscore-text').innerText = `${content[currentLang].highScoreLabel}: ${highScore} / ${questions.length}`;
+
+            // Simpan markah speed quiz ke localStorage untuk dihubungkan ke Hall of Fame utama
+            localStorage.setItem('biocell_speed_score', score);
+
+            if (score >= 3) {
+                confetti({
+                    particleCount: 130,
+                    spread: 90,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        displayStartHighScore();
+        updateScoreDisplay();
+    </script>
+</body>
+</html>

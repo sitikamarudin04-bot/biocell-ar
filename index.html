@@ -32,7 +32,6 @@
             min-height: 100vh;
         }
 
-        /* Latar belakang luar biru-ungu futuristik dengan overlay lembut */
         body::before {
             content: "";
             position: fixed;
@@ -71,7 +70,6 @@
         }
         .nav-item:hover:not(.active) { color: var(--neon-blue); background: rgba(255, 255, 255, 0.05); }
 
-        /* Pill Toggle Bahasa Asal */
         .lang-switcher { 
             display: flex; background: rgba(255, 255, 255, 0.05); 
             border: 1px solid rgba(0, 242, 254, 0.3); padding: 3px; border-radius: 20px; 
@@ -85,33 +83,44 @@
             box-shadow: 0 0 10px rgba(0, 242, 254, 0.7); 
         }
 
-        /* Hero Section (Bingkai Sci-Fi) */
+        /* HERO SECTION DICERAHKAN & BERWARNA-WARNI CERIA */
         .hero { 
             text-align: center; 
-            padding: 28px 30px; 
+            padding: 30px 30px; 
             width: 90%; 
             max-width: 1300px;
             margin: 25px auto 20px auto; 
-            background: rgba(6, 14, 30, 0.82); 
+            /* Tukar kepada latar belakang putih lembut bercahaya supaya teks dan warna lebih hidup */
+            background: rgba(241, 247, 255, 0.95); 
             backdrop-filter: blur(14px); 
-            border: 2px solid rgba(0, 242, 254, 0.45); 
-            border-radius: 20px; 
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 242, 254, 0.15); 
+            border: 3px solid #00f2fe; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 35px rgba(0, 242, 254, 0.3); 
             box-sizing: border-box;
         }
         .hero h1 { 
-            color: #ffffff; font-size: 34px; font-weight: 800; 
-            margin: 0 0 8px 0; text-shadow: 0 0 15px rgba(255, 255, 255, 0.5); 
+            color: #0f172a; font-size: 36px; font-weight: 800; 
+            margin: 0 0 8px 0; 
         }
-        .hero h1 span { color: #22c55e; text-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
-        .hero p { color: #cbd5e1; font-size: 15px; margin: 0; font-style: italic; letter-spacing: 0.3px; }
+        /* Warna-warni ceria pada perkataan AR dan teks tajuk */
+        .hero h1 span { 
+            color: #16a34a; 
+            text-shadow: 0 0 10px rgba(22, 163, 74, 0.4); 
+        }
+        .hero h1 .highlight-blue {
+            color: #0284c7;
+        }
+        .hero p { 
+            color: #334155; font-size: 16px; margin: 0; font-weight: 600; 
+            letter-spacing: 0.3px; 
+        }
 
-        /* KAD MODUL SEL - Panel Putih Lembut (#F1F7FF) */
+        /* KAD MODUL SEL */
         .card-container { 
             display: flex; 
             justify-content: center; 
             gap: 40px; 
-            padding: 10px 3% 40px 3%; 
+            padding: 10px 3% 20px 3%; 
             width: 100%;
             max-width: 1400px;
             margin: 0 auto;
@@ -146,7 +155,7 @@
         }
     
         .card img { 
-            width: 490px; height: 490px; object-fit: contain; 
+            width: 320px; height: 320px; object-fit: contain; 
             filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.12));
             animation: floatImage 4s ease-in-out infinite;
             transition: transform 0.3s ease;
@@ -162,7 +171,6 @@
             100% { transform: translateY(0px); }
         }
 
-        /* TAJUK SPESIFIK KAD */
         .animal-card h3 { 
             font-size: 34px; margin: 0; color: var(--title-animal); 
             font-weight: 800;
@@ -179,7 +187,6 @@
             font-weight: 500;
         }
     
-        /* GAYA BUTANG UTAMA DENGAN IKON MIKROSKOP & DAUN YANG BETUL */
         .btn { 
             display: inline-flex; 
             align-items: center;
@@ -211,7 +218,36 @@
             box-shadow: 0 0 25px rgba(255, 255, 255, 0.6); 
         }
 
-        /* FOOTER KACA MODEN (Kekal Asal) */
+        .learn-more-container {
+            text-align: center;
+            margin: 10px 0 30px 0;
+        }
+
+        .learn-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(6, 14, 30, 0.85);
+            color: var(--neon-blue);
+            border: 1px solid rgba(0, 242, 254, 0.5);
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .learn-more-btn:hover {
+            background: rgba(0, 242, 254, 0.15);
+            color: #ffffff;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+            transform: translateY(-2px);
+        }
+
         .footer-container {
             text-align: center;
             padding: 15px;
@@ -233,7 +269,7 @@
 </head>
 <body>
 
-    <!-- NAVBAR ASAL -->
+    <!-- NAVBAR -->
     <div class="header-container">
         <a href="index.html" class="logo-title">BioCell-AR</a>
         <div class="nav-links">
@@ -250,15 +286,15 @@
         </div>
     </div>
 
-    <!-- KOTAK TAJUK UTAMA (HERO BINGKAI SCI-FI) -->
+    <!-- KOTAK TAJUK UTAMA (HERO) - DICERAHKAN & BERWARNA-WARNI -->
     <section class="hero">
-        <h1 id="hero-title">Welcome to BioCell-<span>AR</span> Platform</h1>
+        <h1 id="hero-title">Welcome to <span class="highlight-blue">BioCell</span>-<span style="color: #bc13fe;">A</span><span style="color: #22c55e;">R</span> Platform</h1>
         <p id="hero-desc">Form 1 Science Learning | Explore, learn and understand the amazing world of cells</p>
     </section>
 
-    <!-- KAD MODUL SEL (PUTIH LEMBUT) -->
+    <!-- KAD MODUL SEL -->
     <div class="card-container">
-        <!-- Kad Haiwan (Ikon Mikroskop Betul) -->
+        <!-- Kad Haiwan -->
         <div class="card animal-card">
             <img src="assets/sel-haiwan.png" alt="Animal Cell" onerror="this.src='https://modelviewer.dev/shared-assets/models/Astronaut.glb' style='display:none'">
             <h3 id="card1-title">Animal Cell Module</h3>
@@ -270,7 +306,7 @@
             </a>
         </div>
 
-        <!-- Kad Tumbuhan (Ikon Daun Betul) -->
+        <!-- Kad Tumbuhan -->
         <div class="card plant-card">
             <img src="assets/sel-tumbuhan.png" alt="Plant Cell" onerror="this.src='https://modelviewer.dev/shared-assets/models/Astronaut.glb' style='display:none'">
             <h3 id="card2-title">Plant Cell Module</h3>
@@ -283,7 +319,15 @@
         </div>
     </div>
 
-    <!-- FOOTER BAHAGIAN BAWAH (Kekal Asal) -->
+    <!-- BUTANG LEARN MORE -->
+    <div class="learn-more-container">
+        <a href="about.html" class="learn-more-btn" id="learn-more-text">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Learn More About BioCell-AR →
+        </a>
+    </div>
+
+    <!-- FOOTER -->
     <footer class="footer-container">
         <p id="footer-text">© 2026 <span>BioCell-AR</span> | Interactive Web-Based Augmented Reality for Form 1 Science KSSM</p>
     </footer>
@@ -292,7 +336,7 @@
         const translations = {
             en: {
                 navHome: "Home", navExplorer: "3D Explorer", navQuiz: "Quiz Game", navAbout: "About", navHelp: "Help",
-                heroTitle: "Welcome to BioCell-<span>AR</span> Platform",
+                heroTitle: 'Welcome to <span class="highlight-blue">BioCell</span>-<span style="color: #bc13fe;">A</span><span style="color: #22c55e;">R</span> Platform',
                 heroDesc: "Form 1 Science Learning | Explore, learn and understand the amazing world of cells",
                 card1Title: "Animal Cell Module",
                 card1Desc: "Explore the structure and functions of animal cell.",
@@ -300,11 +344,12 @@
                 card2Title: "Plant Cell Module",
                 card2Desc: "Explore the structure and functions of plant cell.",
                 btn2Text: 'Explore Now',
+                learnMoreText: 'Learn More About BioCell-AR →',
                 footerText: "© 2026 BioCell-AR | Interactive Web-Based Augmented Reality for Form 1 Science KSSM"
             },
             ms: {
                 navHome: "Utama", navExplorer: "Penjelajah 3D", navQuiz: "Permainan Kuiz", navAbout: "Tentang Kami", navHelp: "Bantuan",
-                heroTitle: "Selamat Datang ke Platform BioCell-<span>AR</span>",
+                heroTitle: 'Selamat Datang ke Platform <span class="highlight-blue">BioCell</span>-<span style="color: #bc13fe;">A</span><span style="color: #22c55e;">R</span>',
                 heroDesc: "Pembelajaran Sains Tingkatan 1 | Teroka, belajar dan fahami dunia sel yang menakjubkan",
                 card1Title: "Modul Sel Haiwan",
                 card1Desc: "Teroka struktur dan fungsi organel sel haiwan.",
@@ -312,6 +357,7 @@
                 card2Title: "Modul Sel Tumbuhan",
                 card2Desc: "Teroka struktur dan fungsi organel sel tumbuhan.",
                 btn2Text: 'Mula Teroka',
+                learnMoreText: 'Ketahui Lebih Lanjut Mengenai BioCell-AR →',
                 footerText: "© 2026 BioCell-AR | Pembelajaran Interaktif Realiti Terimbuh (AR) Sains Tingkatan 1 KSSM"
             }
         };
@@ -331,14 +377,14 @@
             document.getElementById('card1-title').innerText = translations[lang].card1Title;
             document.getElementById('card1-desc').innerText = translations[lang].card1Desc;
             
-            // Butang Sel Haiwan dengan Ikon Mikroskop
             document.getElementById('btn1').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V2"/></svg> ${translations[lang].btn1Text} <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"/></svg>`;
 
             document.getElementById('card2-title').innerText = translations[lang].card2Title;
             document.getElementById('card2-desc').innerText = translations[lang].card2Desc;
             
-            // Butang Sel Tumbuhan dengan Ikon Daun
             document.getElementById('btn2').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.4 19 2c2.4 2 3 3.5 1.9 9.2a7 7 0 0 1-13.9 3.8z"/><path d="M2 21c0-3 1.8-5.2 5-6"/></svg> ${translations[lang].btn2Text} <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"/></svg>`;
+
+            document.getElementById('learn-more-text').innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> ${translations[lang].learnMoreText}`;
 
             document.getElementById('footer-text').innerHTML = translations[lang].footerText;
         }
