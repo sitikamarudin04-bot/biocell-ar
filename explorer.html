@@ -386,48 +386,40 @@
             .control-btn { padding: 6px 10px; font-size: 12px; }
         }
 
-        @media screen and (max-width: 900px) and (orientation: landscape) {
-    /* 1. Jadikan header lebih nipis dan kompak dalam mod melintang */
-    .header-container {
-        padding: 6px 20px !important;
-        position: relative !important; /* Elakkan ia melekat (sticky) atas elemen lain jika ruang terlalu sempit */
-    }
-
-    .logo-title {
-        font-size: 20px !important;
-    }
-
-    .nav-links {
-        gap: 10px !important;
-    }
-
-    .nav-item {
-        font-size: 13px !important;
-        padding: 4px 10px !important;
-    }
-
-    /* 2. Berikan jarak selamat (spacing) untuk paparan 3D di bawahnya */
-    .page-top-bar {
-                margin: 10px auto !important;
-            }
-
-            .container {
-                margin-bottom: 20px !important;
+       @media screen and (max-width: 900px) and (orientation: landscape) {
+            /* 1. Paksa bar atas dan kontena turun cukup jauh dari header */
+            .page-top-bar {
+                margin-top: 30px !important;
+                margin-bottom: 15px !important;
             }
 
             .left-panel {
-                height: 380px !important; /* Kurangkan sedikit ketinggian panel dalam mod melintang */
+                height: 380px !important;
             }
 
+            /* 2. Alihkan butang-butang kawalan atas ke tengah atau susun dua baris supaya tak melimpah ke kiri */
             .top-controls {
-                top: 10px !important;
-                right: 10px !important;
-                gap: 4px !important;
+                top: 15px !important;
+                right: 15px !important;
+                left: 15px !important; /* Biar ia kekal dalam kotak putih panel */
+                justify-content: flex-end !important;
+                flex-wrap: wrap !important;
+                gap: 5px !important;
             }
 
+            /* 3. Kecilkan saiz butang kawalan sikit supaya muat dalam mod landskap */
             .control-btn {
-                padding: 5px 10px !important;
-                font-size: 12px !important;
+                padding: 5px 8px !important;
+                font-size: 11px !important;
+            }
+
+            /* 4. Asingkan kedudukan butang AR hijau supaya tak bertindih dengan butang zum */
+            model-viewer > button[slot="ar-button"] {
+                position: absolute !important;
+                bottom: 15px !important;
+                left: 15px !important;
+                top: auto !important;
+                right: auto !important;
             }
 }
     </style>
