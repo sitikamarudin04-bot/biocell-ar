@@ -54,12 +54,58 @@
             box-shadow: 0 4px 10px rgba(0, 102, 255, 0.2);
         }
 
+        .main-title-box {
+            text-align: center;
+        }
+
         .main-title-box h2 {
-            margin: 0;
+            margin: 0 0 8px 0;
             color: #0046ad;
             font-size: 22px;
             font-weight: bold;
-            text-align: center;
+        }
+
+        /* KUMPULAN BUTANG AUDIO (DENGAR & STOP) */
+        .audio-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .audio-guide-btn {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #ffffff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4);
+            transition: 0.3s;
+        }
+
+        .audio-guide-btn:hover {
+            transform: scale(1.05);
+            background: #0284c7;
+        }
+
+        .stop-audio-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+            transition: 0.3s;
+        }
+
+        .stop-audio-btn:hover {
+            transform: scale(1.05);
+            background: #dc2626;
         }
 
         .header-right-group {
@@ -205,7 +251,6 @@
             transform: none;
         }
 
-        /* ANIMASI GEGAR JAWAPAN SALAH */
         @keyframes shake {
             0% { transform: translateX(0); }
             20% { transform: translateX(-6px); }
@@ -259,6 +304,11 @@
         
         <div class="main-title-box">
             <h2 id="main-title">Padanan Fungsi Sel</h2>
+            <!-- BUTANG AUDIO & STOP -->
+            <div class="audio-controls">
+                <button type="button" class="audio-guide-btn" onclick="speakMatchGuide()" id="audio-btn-text">🔊 Dengar Panduan</button>
+                <button type="button" class="stop-audio-btn" onclick="stopMatchAudio()" id="stop-btn-text">⏹ Berhenti</button>
+            </div>
         </div>
         
         <div class="header-right-group">
@@ -305,7 +355,10 @@
                 col2: "Fungsi Utama",
                 resetBtn: "Main Semula",
                 scoreText: "Padanan",
-                highScoreText: "Markah Tertinggi"
+                highScoreText: "Markah Tertinggi",
+                audioText: "Sila pilih nama organel di sebelah kiri, kemudian padankan dengan pernyataan fungsi utama yang betul di sebelah kanan.",
+                audioBtnText: "🔊 Dengar Panduan",
+                stopBtnText: "⏹ Berhenti"
             },
             en: {
                 title: "Organelle Match",
@@ -314,7 +367,10 @@
                 col2: "Primary Functions",
                 resetBtn: "Play Again",
                 scoreText: "Matched",
-                highScoreText: "High Score"
+                highScoreText: "High Score",
+                audioText: "Please select an organelle on the left, then match it with the correct primary function statement on the right.",
+                audioBtnText: "🔊 Listen to Guide",
+                stopBtnText: "⏹ Stop"
             }
         };
 
@@ -341,6 +397,7 @@
         ];
 
         function switchCellMode(type) {
+            window.speechSynthesis.cancel();
             currentCellType = type;
             selectedOrganelle = null;
             matchedCount = 0;
@@ -370,6 +427,7 @@
         }
 
         function initGame() {
+            window.speechSynthesis.cancel();
             selectedOrganelle = null;
             matchedCount = 0;
             updateScoreBoard();
@@ -432,14 +490,12 @@
 
                 let activePairs = getCurrentPairs();
                 
-                // Simpan High Score ke LocalStorage
                 let highScoreKey = 'biocell_match_highscore_' + currentCellType;
                 let currentHighScore = parseInt(localStorage.getItem(highScoreKey)) || 0;
                 if (matchedCount > currentHighScore) {
                     localStorage.setItem(highScoreKey, matchedCount);
                 }
 
-                // Jumlahkan keseluruhan markah padanan untuk dipaparkan di menu utama quiz.html
                 let animalBest = parseInt(localStorage.getItem('biocell_match_highscore_animal')) || 0;
                 let plantBest = parseInt(localStorage.getItem('biocell_match_highscore_plant')) || 0;
                 localStorage.setItem('biocell_match_score', animalBest + plantBest);
@@ -463,12 +519,47 @@
 
                 if (selectedOrganelle) {
                     selectedOrganelle.element.classList.remove('selected');
-                    selectedOrganelle = null;
+                    selectedOrganelle.element = null;
                 }
             }
         }
 
+        // FUNGSI SEBUTAN PANDUAN AUDIO (MANUAL & PERLAHAN, EN DITETAPKAN 0.75)
+        function speakMatchGuide() {
+            window.speechSynthesis.cancel();
+            const textToSpeak = content[currentLang].audioText;
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            
+            utterance.lang = (currentLang === 'en') ? 'en-US' : 'ms-MY';
+            
+            // Kelajuan dikurangkan khas untuk Inggeris supaya lebih mudah ditangkap murid
+            if (currentLang === 'en') {
+                utterance.rate = 0.70; 
+            } else {
+                utterance.rate = 1.0;  
+            }
+            
+            utterance.pitch = 1.0;
+
+            const voices = window.speechSynthesis.getVoices();
+            if (currentLang === 'bm') {
+                const malayVoice = voices.find(v => v.lang.includes('ms') || v.lang.includes('id'));
+                if (malayVoice) utterance.voice = malayVoice;
+            } else {
+                const engVoice = voices.find(v => v.lang.includes('en'));
+                if (engVoice) utterance.voice = engVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // FUNGSI BERHENTI AUDIO
+        function stopMatchAudio() {
+            window.speechSynthesis.cancel();
+        }
+
         function changeLanguage(lang) {
+            window.speechSynthesis.cancel();
             currentLang = lang;
             document.getElementById('btn-bm').classList.toggle('active', lang === 'bm');
             document.getElementById('btn-en').classList.toggle('active', lang === 'en');
@@ -478,6 +569,8 @@
             document.getElementById('col1-title').innerText = content[lang].col1;
             document.getElementById('col2-title').innerText = content[lang].col2;
             document.getElementById('reset-btn').innerText = content[lang].resetBtn;
+            document.getElementById('audio-btn-text').innerText = content[lang].audioBtnText;
+            document.getElementById('stop-btn-text').innerText = content[lang].stopBtnText;
 
             initGame();
         }
@@ -485,5 +578,6 @@
         // Mulakan mod sel haiwan sebagai lalai
         switchCellMode('animal');
     </script>
+    <script src="landscape-prompt.js"></script>
 </body>
 </html>

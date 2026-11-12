@@ -52,12 +52,58 @@
             box-shadow: 0 4px 10px rgba(0, 102, 255, 0.2);
         }
 
+        .main-title-box {
+            text-align: center;
+        }
+
         .main-title-box h2 {
-            margin: 0;
+            margin: 0 0 8px 0;
             color: #0046ad;
             font-size: 22px;
             font-weight: bold;
-            text-align: center;
+        }
+
+        /* KUMPULAN BUTANG AUDIO (DENGAR & STOP) */
+        .audio-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .audio-guide-btn {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #ffffff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4);
+            transition: 0.3s;
+        }
+
+        .audio-guide-btn:hover {
+            transform: scale(1.05);
+            background: #0284c7;
+        }
+
+        .stop-audio-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+            transition: 0.3s;
+        }
+
+        .stop-audio-btn:hover {
+            transform: scale(1.05);
+            background: #dc2626;
         }
 
         .header-right-group {
@@ -328,6 +374,11 @@
         
         <div class="main-title-box">
             <h2 id="main-title">Cabaran Struktur Sel</h2>
+            <!-- BUTANG AUDIO & STOP -->
+            <div class="audio-controls">
+                <button type="button" class="audio-guide-btn" onclick="speakDragDropGuide()" id="audio-btn-text">🔊 Dengar Panduan</button>
+                <button type="button" class="stop-audio-btn" onclick="stopDragDropAudio()" id="stop-btn-text">⏹ Berhenti</button>
+            </div>
         </div>
         
         <div class="header-right-group">
@@ -397,7 +448,10 @@
                 ],
                 checkBtn: "Semak Jawapan",
                 resetBtn: "Main Semula",
-                dropPlaceholder: "Letak di sini"
+                dropPlaceholder: "Letak di sini",
+                audioText: "Sila heret nama organel yang betul dari bank label di sebelah kiri, dan lepaskan ke dalam petak kosong yang sepadan di sekeliling sel.",
+                audioBtnText: "🔊 Dengar Panduan",
+                stopBtnText: "⏹ Berhenti"
             },
             en: {
                 title: "Cell Structure Challenge",
@@ -413,7 +467,10 @@
                 ],
                 checkBtn: "Check Answer",
                 resetBtn: "Play Again",
-                dropPlaceholder: "Drop here"
+                dropPlaceholder: "Drop here",
+                audioText: "Drag the correct organelle name from the left label bank, and drop it onto the matching blank box surrounding the cell.",
+                audioBtnText: "🔊 Listen to Guide",
+                stopBtnText: "⏹ Stop"
             }
         };
 
@@ -433,6 +490,7 @@
         }
 
         function switchCellMode(type) {
+            window.speechSynthesis.cancel(); // Hentikan audio jika tukar mod
             currentCellType = type;
             currentScoreGlobal = 0;
             const labelBank = document.getElementById('label-bank');
@@ -465,7 +523,6 @@
                 document.getElementById('dz-mitochondria').style.cssText = "top: 52%; left: 16%;";
                 document.getElementById('dz-cytoplasm').style.cssText = "top: 28%; left: 70%;";
             } else {
-                // 7 Komponen Utama Sel Tumbuhan mengikut Buku Teks Tingkatan 1
                 labelBank.innerHTML = `
                     <div class="draggable-label" draggable="true" id="lbl-wall" data-target="dz-wall" data-bm="Dinding Sel" data-en="Cell Wall">${currentLang === 'bm' ? 'Dinding Sel' : 'Cell Wall'}</div>
                     <div class="draggable-label" draggable="true" id="lbl-membrane" data-target="dz-membrane" data-bm="Membran Sel" data-en="Cell Membrane">${currentLang === 'bm' ? 'Membran Sel' : 'Cell Membrane'}</div>
@@ -499,6 +556,7 @@
         }
 
         function changeLanguage(lang) {
+            window.speechSynthesis.cancel();
             currentLang = lang;
             document.getElementById('btn-bm').classList.toggle('active', lang === 'bm');
             document.getElementById('btn-en').classList.toggle('active', lang === 'en');
@@ -509,6 +567,8 @@
             document.getElementById('rules-title').innerText = content[lang].rulesTitle;
             document.getElementById('check-btn').innerText = content[lang].checkBtn;
             document.getElementById('reset-btn').innerText = content[lang].resetBtn;
+            document.getElementById('audio-btn-text').innerText = content[lang].audioBtnText;
+            document.getElementById('stop-btn-text').innerText = content[lang].stopBtnText;
             
             const rulesList = document.getElementById('rules-list');
             rulesList.innerHTML = '';
@@ -519,6 +579,38 @@
             });
 
             switchCellMode(currentCellType);
+        }
+
+        // FUNGSI SEBUTAN PANDUAN (WEB SPEECH API - MANUAL & PERLAHAN)
+        function speakDragDropGuide() {
+            window.speechSynthesis.cancel();
+            const textToSpeak = content[currentLang].audioText;
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            
+            utterance.lang = (currentLang === 'en') ? 'en-US' : 'ms-MY';
+            if (currentLang === 'en') {
+                utterance.rate = 0.70; // Bahasa Inggeris lebih perlahan & jelas untuk murid
+            } else {
+                utterance.rate = 1.0;  // Bahasa Melayu
+            }
+            
+            utterance.pitch = 1.0;
+            
+            const voices = window.speechSynthesis.getVoices();
+            if (currentLang === 'bm') {
+                const malayVoice = voices.find(v => v.lang.includes('ms') || v.lang.includes('id'));
+                if (malayVoice) utterance.voice = malayVoice;
+            } else {
+                const engVoice = voices.find(v => v.lang.includes('en'));
+                if (engVoice) utterance.voice = engVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // FUNGSI UNTUK HENTIKAN AUDIO SERTA-MERTA
+        function stopDragDropAudio() {
+            window.speechSynthesis.cancel();
         }
 
         function initializeDragAndDrop() {
@@ -561,6 +653,7 @@
         }
 
         function evaluateGame() {
+            window.speechSynthesis.cancel();
             let currentScore = 0;
             const dropzones = document.querySelectorAll('.dropzone');
             const totalItems = dropzones.length;
@@ -604,11 +697,13 @@
         }
 
         function resetGame() {
+            window.speechSynthesis.cancel();
             switchCellMode(currentCellType);
         }
 
         // Permulaan lalai
         switchCellMode('animal');
     </script>
+    <script src="landscape-prompt.js"></script>
 </body>
 </html>

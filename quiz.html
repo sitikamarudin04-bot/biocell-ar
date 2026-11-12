@@ -159,6 +159,10 @@
         .arcade-banner {
             text-align: center;
             padding: 5px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
         }
 
         .arcade-banner h1 {
@@ -170,6 +174,58 @@
             text-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
             letter-spacing: 2px;
             margin: 0;
+        }
+
+        /* KUMPULAN BUTANG AUDIO (DENGAR & STOP) */
+        .audio-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .audio-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #ffffff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .audio-btn:hover {
+            transform: scale(1.06);
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.7);
+        }
+
+        .stop-audio-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .stop-audio-btn:hover {
+            transform: scale(1.06);
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
         }
 
         /* GRID KAD PERMAINAN */
@@ -278,7 +334,7 @@
     <!-- MAIN DASHBOARD -->
     <div class="arcade-container">
         
-        <!-- SIDEBAR KIRI: HALL OF FAME (DENGAN NAMA DRAG & DROP) -->
+        <!-- SIDEBAR KIRI: HALL OF FAME -->
         <div class="hall-of-fame">
             <h2 id="hof-title">REKOD PENCAPAIAN</h2>
             <div class="stat-item">
@@ -319,6 +375,16 @@
         <div class="arcade-main">
             <div class="arcade-banner">
                 <h1 id="arcade-title">KEMBARA DUNIA SEL</h1>
+                
+                <!-- KUMPULAN BUTANG AUDIO & STOP -->
+                <div class="audio-controls">
+                    <button type="button" class="audio-btn" onclick="speakAudioGuide()" id="audio-guide-btn">
+                        🔊 Dengar Panduan Kuiz
+                    </button>
+                    <button type="button" class="stop-audio-btn" onclick="stopAudio()" id="stop-audio-btn">
+                        ⏹ Berhenti
+                    </button>
+                </div>
             </div>
 
             <div class="games-grid">
@@ -349,7 +415,7 @@
                     <a href="quiz-speed.html" class="play-btn" id="btn-play3">MAIN SEKARANG</a>
                 </div>
 
-                <!-- Kad 4: Pengecaman Hotspot (DISEMAK AKTIF) -->
+                <!-- Kad 4: Pengecaman Hotspot -->
                 <div class="game-card">
                     <div>
                         <h3 id="card4-title">Pengecaman Hotspot</h3>
@@ -363,6 +429,8 @@
     </div>
 
     <script>
+        let currentLang = 'bm';
+
         const content = {
             bm: {
                 home: "Utama", explorer: "Penjelajah 3D", quiz: "Permainan Kuiz", about: "Tentang Kami", help: "Bantuan",
@@ -376,6 +444,9 @@
                 statHotspot2: "Hotspot (Tumbuhan)",
                 statTotal: "Jumlah Keseluruhan",
                 arcadeTitle: "KEMBARA DUNIA SEL",
+                audioBtnText: "🔊 Dengar Panduan Kuiz",
+                stopBtnText: "⏹ Berhenti",
+                audioTextToSpeak: "Selamat datang ke Kembara Dunia Sel. Sila pilih modul permainan kuiz di sebelah bawah untuk menguji minda anda.",
                 card1Title: "Drag & Drop",
                 card1Desc: "Heret dan lepaskan nama organel yang betul pada rajah sel haiwan dan sel tumbuhan dengan tepat.",
                 card2Title: "Padanan Fungsi Sel",
@@ -398,6 +469,9 @@
                 statHotspot2: "Hotspot (Plant)",
                 statTotal: "Total Score",
                 arcadeTitle: "CELL ADVENTURE",
+                audioBtnText: "🔊 Listen to Quiz Guide",
+                stopBtnText: "⏹ Stop",
+                audioTextToSpeak: "Welcome to Cell Adventure. Please choose a quiz game below to test your mind.",
                 card1Title: "Drag & Drop",
                 card1Desc: "Drag and drop the correct organelle names onto animal and plant cell diagrams accurately.",
                 card2Title: "Organelle Match",
@@ -411,6 +485,7 @@
         };
 
         function changeLanguage(lang) {
+            currentLang = lang;
             document.getElementById('btn-bm').classList.toggle('active', lang === 'bm');
             document.getElementById('btn-en').classList.toggle('active', lang === 'en');
             
@@ -430,6 +505,8 @@
             document.getElementById('stat-hotspot2').innerText = content[lang].statHotspot2;
             document.getElementById('stat-total').innerText = content[lang].statTotal;
             document.getElementById('arcade-title').innerText = content[lang].arcadeTitle;
+            document.getElementById('audio-guide-btn').innerText = content[lang].audioBtnText;
+            document.getElementById('stop-audio-btn').innerText = content[lang].stopBtnText;
             
             document.getElementById('card1-title').innerText = content[lang].card1Title;
             document.getElementById('card1-desc').innerText = content[lang].card1Desc;
@@ -444,6 +521,49 @@
             document.getElementById('btn-play2').innerText = content[lang].playBtn;
             document.getElementById('btn-play3').innerText = content[lang].playBtn;
             document.getElementById('btn-play4').innerText = content[lang].playBtn;
+        }
+
+        // FUNGSI SEBUTAN SUARA KONSISTEN & STABIL SEJAK KLIK PERTAMA
+        function speakAudioGuide() {
+            window.speechSynthesis.cancel();
+            const textToSpeak = content[currentLang].audioTextToSpeak;
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            
+            utterance.lang = (currentLang === 'en') ? 'en-US' : 'ms-MY';
+            if (currentLang === 'en') {
+                utterance.rate = 0.65; 
+            } else {
+                utterance.rate = 1.0;  
+            }
+            utterance.pitch = 1.0;
+
+            const setVoiceAndSpeak = () => {
+                const voices = window.speechSynthesis.getVoices();
+                if (currentLang === 'bm') {
+                    const malayVoice = voices.find(v => v.lang.toLowerCase().includes('ms') || v.lang.toLowerCase().includes('id') || v.name.toLowerCase().includes('malay'));
+                    if (malayVoice) utterance.voice = malayVoice;
+                } else {
+                    const engVoice = voices.find(v => v.lang.toLowerCase().includes('en'));
+                    if (engVoice) utterance.voice = engVoice;
+                }
+                window.speechSynthesis.speak(utterance);
+            };
+
+            if (window.speechSynthesis.getVoices().length > 0) {
+                setVoiceAndSpeak();
+            } else {
+                window.speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
+                setTimeout(() => {
+                    if (!window.speechSynthesis.speaking && window.speechSynthesis.getVoices().length > 0) {
+                        setVoiceAndSpeak();
+                    }
+                }, 100);
+            }
+        }
+
+        // FUNGSI UNTUK HENTIKAN AUDIO SERTA-MERTA
+        function stopAudio() {
+            window.speechSynthesis.cancel();
         }
 
         function loadStats() {
@@ -472,5 +592,6 @@
 
         loadStats();
     </script>
+    <script src="landscape-prompt.js"></script>
 </body>
 </html>

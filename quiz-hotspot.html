@@ -153,11 +153,72 @@
             background: #e8f0fe;
             border: 1px solid #baddff;
             color: #0046ad;
-            padding: 15px;
-            border-radius: 12px;
+            padding: 18px;
+            border-radius: 14px;
             font-size: 18px;
             font-weight: bold;
             margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 102, 255, 0.05);
+        }
+
+        .instruction-text-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .audio-controls-inside {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .audio-guide-btn {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #ffffff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(14, 165, 233, 0.4);
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .audio-guide-btn:hover {
+            transform: scale(1.05);
+            background: #0284c7;
+        }
+
+        .stop-audio-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.4);
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stop-audio-btn:hover {
+            transform: scale(1.05);
+            background: #dc2626;
         }
 
         .cell-image-wrapper {
@@ -272,10 +333,17 @@
     <!-- UTAMA HOTSPOT -->
     <div class="hotspot-container">
         
-        <!-- SKRIN MULA -->
+        <!-- SKRIN MULA (DITAMBAH BUTANG AUDIO ARAHAN UMUM) -->
         <div class="start-screen" id="start-screen">
             <h2 id="start-title">Cabaran Pengecaman Hotspot</h2>
-            <p id="start-desc" style="color: #64748b; line-height: 1.6; margin-bottom: 20px;">Sila baca arahan di atas rajah sel, kemudian klik terus pada titik organel yang tepat pada rajah sel!</p>
+            <p id="start-desc" style="color: #64748b; line-height: 1.6; margin-bottom: 15px;">Sila baca arahan di atas rajah sel, kemudian klik terus pada titik organel yang tepat pada rajah sel!</p>
+            
+            <!-- Butang Audio untuk Skrin Mula -->
+            <div style="margin-bottom: 20px;">
+                <button type="button" class="audio-guide-btn" onclick="speakStartGuide()" id="audio-start-btn-text">🔊 Dengar Penerangan</button>
+                <button type="button" class="stop-audio-btn" onclick="stopHotspotAudio()" id="stop-start-btn-text">⏹ Berhenti</button>
+            </div>
+
             <p id="start-highscore" style="font-weight: bold; color: #b58900; font-size: 15px;"></p>
             <button class="action-btn" id="start-btn" onclick="startHotspotGame()">MULA SEKARANG</button>
         </div>
@@ -283,7 +351,15 @@
         <!-- SKRIN PERMAINAN -->
         <div id="game-play-area" style="display: none;">
             <div class="instruction-banner" id="instruction-banner">
-                Sila klik pada: <span id="target-organelle-name" style="color: #002b6b;">-</span>
+                <div class="instruction-text-group">
+                    <span id="instruction-prefix">Sila klik pada struktur:</span> 
+                    <span id="target-organelle-name" style="color: #002b6b;">-</span>
+                </div>
+                <!-- BUTANG AUDIO & STOP MISI -->
+                <div class="audio-controls-inside">
+                    <button type="button" class="audio-guide-btn" onclick="speakHotspotGuide()" id="audio-btn-text">🔊 Dengar Misi</button>
+                    <button type="button" class="stop-audio-btn" onclick="stopHotspotAudio()" id="stop-btn-text">⏹ Berhenti</button>
+                </div>
             </div>
 
             <div class="cell-image-wrapper" id="cell-image-wrapper">
@@ -307,12 +383,15 @@
                 title: "Pengecaman Hotspot",
                 backBtn: "← Kembali ke Menu Kuiz",
                 startTitle: "Cabaran Pengecaman Hotspot",
-                startDesc: "Baca arahan di atas rajah sel, kemudian klik terus pada titik organel yang tepat pada rajah sel!",
+                startDesc: "Sila baca arahan di atas rajah sel, kemudian klik terus pada titik organel yang tepat pada rajah sel!",
                 startBtn: "MULA SEKARANG",
                 restartBtn: "MAIN SEMULA",
                 scoreLabel: "Markah",
                 highScoreLabel: "Markah Tertinggi",
-                instructionPrefix: "Sila klik pada struktur:"
+                instructionPrefix: "Sila klik pada struktur:",
+                audioBtnText: "🔊 Dengar Misi",
+                stopBtnText: "⏹ Berhenti",
+                audioStartBtnText: "🔊 Dengar Penerangan"
             },
             en: {
                 title: "Hotspot Spotter",
@@ -323,7 +402,10 @@
                 restartBtn: "PLAY AGAIN",
                 scoreLabel: "Score",
                 highScoreLabel: "High Score",
-                instructionPrefix: "Please click on structure:"
+                instructionPrefix: "Please click on structure:",
+                audioBtnText: "🔊 Listen to Mission",
+                stopBtnText: "⏹ Stop",
+                audioStartBtnText: "🔊 Listen to Guide"
             }
         };
 
@@ -333,7 +415,6 @@
         let score = 0;
         let missions = [];
 
-        // Definisi koordinat hotspot (%) berpandukan imej sel haiwan dan tumbuhan
         const animalHotspots = [
             { key: "nucleus", bm: "Nukleus", en: "Nucleus", top: "50%", left: "45%" },
             { key: "mitochondria", bm: "Mitokondria", en: "Mitochondria", top: "38%", left: "30%" },
@@ -345,13 +426,14 @@
             { key: "wall", bm: "Dinding Sel", en: "Cell Wall", top: "18%", left: "20%" },
             { key: "membrane", bm: "Membran Sel", en: "Cell Membrane", top: "30%", left: "25%" },
             { key: "nucleus", bm: "Nukleus", en: "Nucleus", top: "45%", left: "45%" },
-            { key: "chloroplast", bm: "Kloroplas", en: "Chloroplast", top: "28%", left: "65%" },
+            { key: "chloroplast", bm: "Kloroplas", en: "Chloroplast", top: "28%", left: "68%" },
             { key: "vacuole", bm: "Vakuol", en: "Vacuole", top: "58%", left: "48%" },
             { key: "mitochondria", bm: "Mitokondria", en: "Mitochondria", top: "65%", left: "68%" },
             { key: "cytoplasm", bm: "Sitoplasma", en: "Cytoplasm", top: "78%", left: "35%" }
         ];
 
         function switchCellMode(type) {
+            window.speechSynthesis.cancel();
             currentCellType = type;
             document.getElementById('btn-mode-animal').style.backgroundColor = (type === 'animal') ? '#0066ff' : '#ffffff';
             document.getElementById('btn-mode-animal').style.color = (type === 'animal') ? 'white' : '#0066ff';
@@ -381,6 +463,7 @@
         }
 
         function startHotspotGame() {
+            window.speechSynthesis.cancel();
             score = 0;
             currentMissionIndex = 0;
             missions = [...(currentCellType === 'animal' ? animalHotspots : plantHotspots)].sort(() => Math.random() - 0.5);
@@ -402,15 +485,12 @@
             const currentTarget = missions[currentMissionIndex];
             const wrapper = document.getElementById('cell-image-wrapper');
             
-            // Set background imej mengikut mod sel
             wrapper.style.backgroundImage = currentCellType === 'animal' ? "url('assets/sel-haiwan.png')" : "url('assets/sel-tumbuhan.png')";
             wrapper.innerHTML = '';
 
-            // Papar arahan
             let orgName = currentLang === 'bm' ? currentTarget.bm : currentTarget.en;
             document.getElementById('target-organelle-name').innerText = orgName;
 
-            // Jana titik hotspot secara rawak kedudukannya di atas imej untuk dipilih pelajar
             let allSpots = [...(currentCellType === 'animal' ? animalHotspots : plantHotspots)].sort(() => Math.random() - 0.5);
 
             allSpots.forEach(spot => {
@@ -423,7 +503,68 @@
             });
         }
 
+        // FUNGSI SEBUTAN AUDIO UNTUK SKRIN MULA (PENERANGAN UMUM)
+        function speakStartGuide() {
+            window.speechSynthesis.cancel();
+            const textToSpeak = document.getElementById('start-desc').innerText;
+            
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = (currentLang === 'en') ? 'en-US' : 'ms-MY';
+            
+            if (currentLang === 'en') {
+                utterance.rate = 0.70;
+            } else {
+                utterance.rate = 1.0;
+            }
+            utterance.pitch = 1.0;
+
+            const voices = window.speechSynthesis.getVoices();
+            if (currentLang === 'bm') {
+                const malayVoice = voices.find(v => v.lang.includes('ms') || v.lang.includes('id'));
+                if (malayVoice) utterance.voice = malayVoice;
+            } else {
+                const engVoice = voices.find(v => v.lang.includes('en'));
+                if (engVoice) utterance.voice = engVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // FUNGSI SEBUTAN AUDIO MISI SEMASA PERMAINAN
+        function speakHotspotGuide() {
+            window.speechSynthesis.cancel();
+            const prefix = content[currentLang].instructionPrefix;
+            const orgName = document.getElementById('target-organelle-name').innerText;
+            const textToSpeak = `${prefix} ${orgName}`;
+            
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = (currentLang === 'en') ? 'en-US' : 'ms-MY';
+            
+            if (currentLang === 'en') {
+                utterance.rate = 0.75;
+            } else {
+                utterance.rate = 0.8;
+            }
+            utterance.pitch = 1.0;
+
+            const voices = window.speechSynthesis.getVoices();
+            if (currentLang === 'bm') {
+                const malayVoice = voices.find(v => v.lang.includes('ms') || v.lang.includes('id'));
+                if (malayVoice) utterance.voice = malayVoice;
+            } else {
+                const engVoice = voices.find(v => v.lang.includes('en'));
+                if (engVoice) utterance.voice = engVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function stopHotspotAudio() {
+            window.speechSynthesis.cancel();
+        }
+
         function checkHotspot(clickedKey, targetKey, pinElement) {
+            window.speechSynthesis.cancel();
             if (clickedKey === targetKey) {
                 pinElement.classList.add('correct');
                 pinElement.innerText = "✓";
@@ -445,6 +586,7 @@
         }
 
         function endGame() {
+            window.speechSynthesis.cancel();
             document.getElementById('game-play-area').style.display = 'none';
             document.getElementById('result-screen').style.display = 'block';
 
@@ -460,7 +602,6 @@
 
             document.getElementById('result-highscore-text').innerText = `${content[currentLang].highScoreLabel}: ${highScore} / ${maxScore}`;
 
-            // Simpan jumlah markah hotspot ke localStorage untuk dihubungkan ke Hall of Fame utama
             let animalBest = parseInt(localStorage.getItem('biocell_hotspot_highscore_animal')) || 0;
             let plantBest = parseInt(localStorage.getItem('biocell_hotspot_highscore_plant')) || 0;
             localStorage.setItem('biocell_hotspot_score', animalBest + plantBest);
@@ -471,6 +612,7 @@
         }
 
         function changeLanguage(lang) {
+            window.speechSynthesis.cancel();
             currentLang = lang;
             document.getElementById('btn-bm').classList.toggle('active', lang === 'bm');
             document.getElementById('btn-en').classList.toggle('active', lang === 'en');
@@ -481,13 +623,22 @@
             document.getElementById('start-desc').innerText = content[lang].startDesc;
             document.getElementById('start-btn').innerText = content[lang].startBtn;
             document.getElementById('restart-btn').innerText = content[lang].restartBtn;
+            document.getElementById('instruction-prefix').innerText = content[lang].instructionPrefix;
+            document.getElementById('audio-btn-text').innerText = content[lang].audioBtnText;
+            document.getElementById('stop-btn-text').innerText = content[lang].stopBtnText;
+            document.getElementById('audio-start-btn-text').innerText = content[lang].audioStartBtnText;
 
             displayStartHighScore();
             updateScoreBoard();
+            
+            if (document.getElementById('game-play-area').style.display === 'block') {
+                loadMission();
+            }
         }
 
         // Permulaan lalai
         switchCellMode('animal');
     </script>
+    <script src="landscape-prompt.js"></script>
 </body>
 </html>

@@ -150,13 +150,69 @@
             100% { transform: scale(1.08); }
         }
 
+        .question-header-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
         .question-text {
             font-size: 20px;
             font-weight: bold;
             color: #0f172a;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             line-height: 1.5;
-            text-align: center;
+        }
+
+        /* KUMPULAN BUTANG AUDIO (DENGAR & STOP) */
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .question-audio-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .question-audio-btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+        }
+
+        .stop-audio-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .stop-audio-btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
         }
 
         .options-grid {
@@ -185,7 +241,6 @@
             transform: translateY(-2px);
         }
 
-        /* ANIMASI GEGAR UNTUK JAWAPAN SALAH */
         @keyframes shake {
             0% { transform: translateX(0); }
             20% { transform: translateX(-6px); }
@@ -271,7 +326,18 @@
         <!-- SKRIN MULA -->
         <div class="start-screen" id="start-screen">
             <h2 id="start-title">Cabaran Kuiz Pantas Sel</h2>
-            <p id="start-desc">Jawab soalan aneka pilihan berdasarkan silibus sel hidup dalam masa terpantas. Anda mempunyai 15 saat untuk setiap soalan!</p>
+            <p id="start-desc">Jawab soalan aneka pilihan berdasarkan silibus sel hidup dalam masa terpantas. Anda mempunyai 20 saat untuk setiap soalan!</p>
+            
+            <!-- TAMBAHAN BUTANG AUDIO ARAHAN UMUM DI DEPAN -->
+            <div class="audio-controls" style="margin-bottom: 20px;">
+                <button type="button" class="question-audio-btn" onclick="speakStartGuide()" id="audio-start-btn-text">
+                    🔊 Dengar Penerangan
+                </button>
+                <button type="button" class="stop-audio-btn" onclick="stopCurrentAudio()" id="stop-start-btn-text">
+                    ⏹ Berhenti
+                </button>
+            </div>
+
             <p id="start-highscore" style="font-weight: bold; color: #b58900; font-size: 16px;"></p>
             <button class="action-btn" id="start-btn" onclick="startQuiz()">MULA SEKARANG</button>
         </div>
@@ -283,7 +349,19 @@
                 <div class="timer-box" id="timer-text">Masa: 15s</div>
             </div>
 
-            <div class="question-text" id="question-text"></div>
+            <div class="question-header-area">
+                <div class="question-text" id="question-text"></div>
+                
+                <!-- KUMPULAN BUTANG AUDIO (HANYA BERBUNYI BILA DITEKAN) -->
+                <div class="audio-controls">
+                    <button type="button" class="question-audio-btn" onclick="speakCurrentQuestion()" id="audio-btn-text">
+                        🔊 Dengar Soalan
+                    </button>
+                    <button type="button" class="stop-audio-btn" onclick="stopCurrentAudio()" id="stop-btn-text">
+                        ⏹ Berhenti
+                    </button>
+                </div>
+            </div>
 
             <div class="options-grid" id="options-container"></div>
         </div>
@@ -304,25 +382,31 @@
                 title: "Kuiz Pantas (Speed Quiz)",
                 backBtn: "← Kembali ke Menu Kuiz",
                 startTitle: "Cabaran Kuiz Pantas Sel",
-                startDesc: "Jawab soalan aneka pilihan berdasarkan silibus sel hidup dalam masa terpantas. Anda mempunyai 15 saat untuk setiap soalan!",
+                startDesc: "Jawab soalan aneka pilihan berdasarkan silibus sel hidup dalam masa terpantas. Anda mempunyai 20 saat untuk setiap soalan!",
                 startBtn: "MULA SEKARANG",
                 restartBtn: "CUBA LAGI",
                 scoreLabel: "Markah",
                 highScoreLabel: "Markah Tertinggi",
                 timeLabel: "Masa",
-                qCounter: "Soalan"
+                qCounter: "Soalan",
+                audioBtnText: "🔊 Dengar Soalan",
+                stopBtnText: "⏹ Berhenti",
+                audioStartBtnText: "🔊 Dengar Penerangan"
             },
             en: {
                 title: "Speed Quiz",
                 backBtn: "← Back to Quiz Menu",
                 startTitle: "Cell Speed Quiz Challenge",
-                startDesc: "Answer multiple-choice questions based on living cell science in record time. You have 15 seconds per question!",
+                startDesc: "Answer multiple-choice questions based on living cell science in record time. You have 20 seconds per question!",
                 startBtn: "START NOW",
                 restartBtn: "TRY AGAIN",
                 scoreLabel: "Score",
                 highScoreLabel: "High Score",
                 timeLabel: "Time",
-                qCounter: "Question"
+                qCounter: "Question",
+                audioBtnText: "🔊 Listen to Question",
+                stopBtnText: "⏹ Stop",
+                audioStartBtnText: "🔊 Listen to Guide"
             }
         };
 
@@ -411,9 +495,18 @@
             document.getElementById('start-desc').innerText = content[lang].startDesc;
             document.getElementById('start-btn').innerText = content[lang].startBtn;
             document.getElementById('restart-btn').innerText = content[lang].restartBtn;
+            document.getElementById('audio-btn-text').innerText = content[lang].audioBtnText;
+            document.getElementById('stop-btn-text').innerText = content[lang].stopBtnText;
+            document.getElementById('audio-start-btn-text').innerText = content[lang].audioStartBtnText;
+            document.getElementById('stop-start-btn-text').innerText = content[lang].stopBtnText;
 
             updateScoreDisplay();
             displayStartHighScore();
+            
+            // Jika kuiz sedang berjalan, muat semula soalan dalam bahasa baru
+            if (document.getElementById('game-play-area').style.display === 'block') {
+                loadQuestionContentOnly();
+            }
         }
 
         function displayStartHighScore() {
@@ -430,6 +523,7 @@
         }
 
         function startQuiz() {
+            window.speechSynthesis.cancel(); // Pastikan tiada audio saki-baki
             currentQuestionIndex = 0;
             score = 0;
             document.getElementById('start-screen').style.display = 'none';
@@ -439,20 +533,9 @@
             loadQuestion();
         }
 
-        function loadQuestion() {
-            clearInterval(timer);
-            timeLeft = 15;
-            const timerBox = document.getElementById('timer-text');
-            timerBox.classList.remove('warning');
-            timerBox.innerText = `${content[currentLang].timeLabel}: ${timeLeft}s`;
-
-            if (currentQuestionIndex >= questions.length) {
-                endQuiz();
-                return;
-            }
-
+        // Fungsi khusus tukar bahasa soalan tanpa reset timer
+        function loadQuestionContentOnly() {
             const qData = questions[currentQuestionIndex];
-            document.getElementById('question-counter').innerText = `${content[currentLang].qCounter}: ${currentQuestionIndex + 1} / ${questions.length}`;
             document.getElementById('question-text').innerText = currentLang === 'bm' ? qData.q_bm : qData.q_en;
 
             const optionsContainer = document.getElementById('options-container');
@@ -466,6 +549,26 @@
                 btn.onclick = () => selectAnswer(btn, idx, qData.correct);
                 optionsContainer.appendChild(btn);
             });
+        }
+
+        function loadQuestion() {
+            clearInterval(timer);
+            window.speechSynthesis.cancel(); // Hentikan audio soalan sebelumnya
+            timeLeft = 20;
+            const timerBox = document.getElementById('timer-text');
+            timerBox.classList.remove('warning');
+            timerBox.innerText = `${content[currentLang].timeLabel}: ${timeLeft}s`;
+
+            if (currentQuestionIndex >= questions.length) {
+                endQuiz();
+                return;
+            }
+
+            document.getElementById('question-counter').innerText = `${content[currentLang].qCounter}: ${currentQuestionIndex + 1} / ${questions.length}`;
+            
+            loadQuestionContentOnly();
+
+            // NOTA: Audio TIDAK AKAN BERBUNYI AUTOMATIK. Ia senyap sehingga murid tekan butang 🔊 sendiri.
 
             timer = setInterval(() => {
                 timeLeft--;
@@ -482,8 +585,65 @@
             }, 1000);
         }
 
+        // FUNGSI UTILITY PEMILIHAN SUARA YANG KONSISTEN (DIKEMAS KINI SUPAYA SENTIBAS KELUAR SUARA PEREMPUAN BM)
+        function playSpeech(textToSpeak) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            
+            utterance.lang = (currentLang === 'en') ? 'en-US' : 'ms-MY';
+            if (currentLang === 'en') {
+                utterance.rate = 0.70; 
+            } else {
+                utterance.rate = 1.0;  
+            }
+            utterance.pitch = 1.0;
+
+            // Fungsi untuk pastikan suara dipilih betul
+            const setVoiceAndSpeak = () => {
+                const voices = window.speechSynthesis.getVoices();
+                if (currentLang === 'bm') {
+                    const malayVoice = voices.find(v => v.lang.toLowerCase().includes('ms') || v.lang.toLowerCase().includes('id') || v.name.toLowerCase().includes('malay'));
+                    if (malayVoice) utterance.voice = malayVoice;
+                } else {
+                    const engVoice = voices.find(v => v.lang.toLowerCase().includes('en'));
+                    if (engVoice) utterance.voice = engVoice;
+                }
+                window.speechSynthesis.speak(utterance);
+            };
+
+            if (window.speechSynthesis.getVoices().length > 0) {
+                setVoiceAndSpeak();
+            } else {
+                window.speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
+                // Fallback sekiranya event lambat dipanggil
+                setTimeout(() => {
+                    if (!window.speechSynthesis.speaking && window.speechSynthesis.getVoices().length > 0) {
+                        setVoiceAndSpeak();
+                    }
+                }, 100);
+            }
+        }
+
+        // FUNGSI SEBUTAN AUDIO UNTUK SKRIN MULA
+        function speakStartGuide() {
+            const textToSpeak = document.getElementById('start-desc').innerText;
+            playSpeech(textToSpeak);
+        }
+
+        // FUNGSI SEBUTAN AUDIO SOALAN
+        function speakCurrentQuestion() {
+            const questionText = document.getElementById('question-text').innerText;
+            playSpeech(questionText);
+        }
+
+        // FUNGSI BERHENTI AUDIO
+        function stopCurrentAudio() {
+            window.speechSynthesis.cancel();
+        }
+
         function selectAnswer(buttonElement, selectedIndex, correctIndex) {
             clearInterval(timer);
+            window.speechSynthesis.cancel(); // Hentikan audio jika jawab
             const buttons = document.querySelectorAll('.option-btn');
 
             buttons.forEach((btn, idx) => {
@@ -508,6 +668,7 @@
         }
 
         function handleTimeOut() {
+            window.speechSynthesis.cancel();
             const buttons = document.querySelectorAll('.option-btn');
             const qData = questions[currentQuestionIndex];
 
@@ -526,6 +687,7 @@
 
         function endQuiz() {
             clearInterval(timer);
+            window.speechSynthesis.cancel();
             document.getElementById('game-play-area').style.display = 'none';
             document.getElementById('result-screen').style.display = 'block';
 
@@ -538,9 +700,8 @@
                 highScore = score;
             }
 
-            document.getElementById('result-highscore-text').innerText = `${content[currentLang].highScoreLabel}: ${highScore} / ${questions.length}`;
+            document.getElementById('result-highscore-text').innerText = `${content[currentLocales || currentLang].highScoreLabel || 'High Score'}: ${highScore} / ${questions.length}`;
 
-            // Simpan markah speed quiz ke localStorage untuk dihubungkan ke Hall of Fame utama
             localStorage.setItem('biocell_speed_score', score);
 
             if (score >= 3) {
@@ -555,5 +716,6 @@
         displayStartHighScore();
         updateScoreDisplay();
     </script>
+    <script src="landscape-prompt.js"></script>
 </body>
 </html>
