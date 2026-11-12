@@ -385,6 +385,33 @@
             .top-controls { top: 10px; right: 10px; flex-wrap: wrap; gap: 6px; max-width: 85%; justify-content: flex-end; }
             .control-btn { padding: 6px 10px; font-size: 12px; }
         }
+
+        @media screen and (max-width: 900px) and (orientation: landscape) {
+    /* 1. Jadikan header lebih nipis dan kompak dalam mod melintang */
+    .header-container {
+        padding: 6px 20px !important;
+        position: relative !important; /* Elakkan ia melekat (sticky) atas elemen lain jika ruang terlalu sempit */
+    }
+
+    .logo-title {
+        font-size: 20px !important;
+    }
+
+    .nav-links {
+        gap: 10px !important;
+    }
+
+    .nav-item {
+        font-size: 13px !important;
+        padding: 4px 10px !important;
+    }
+
+    /* 2. Berikan jarak selamat (spacing) untuk paparan 3D di bawahnya */
+    .explorer-container {
+        margin-top: 15px !important;
+        padding: 0 10px !important;
+    }
+}
     </style>
 </head>
 <body>
